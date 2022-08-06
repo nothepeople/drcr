@@ -3,7 +3,7 @@
 work_dir=`pwd`
 type_name="SrlgDisjoint"
 tunnel_name="large.csv"
-data_dir=${work_dir}/${type_name}
+data_dir=${work_dir}/data/${type_name}
 # cd $work_dir
 if [ ! -d $data_dir  ]
 then
@@ -17,8 +17,7 @@ then
 fi
 
 make main
-# g++ -o check_res check_res.cc
-g++ -o split split_tunnel.cc
+make split
 num=0
 mkdir "LagrangianKsp"
 # for Type in $(ls $data_dir)
