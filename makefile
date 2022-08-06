@@ -9,4 +9,4 @@ check_res: check_res.cc
 split: split_tunnel.cc
 	g++ -O3 split_tunnel.cc --std=c++11 -o split
 clean:
-	rm test
+	rm test main check_res split
