@@ -19,11 +19,13 @@
 # Run Tests
 
 There are three ways to run our code.
-```make test
+```c++
+make test
 ./test
 ```
 
-```make main
+```c++
+make main
 ./main ./"TopoFilePath" ./"TunnelFilePath" 
 ```
 
