@@ -1,3 +1,5 @@
+// Copyright [2022] <Shizhen Zhao, Tianyu Zhu>
+
 #ifndef KSP_SOLVER_H_
 #define KSP_SOLVER_H_
 
@@ -44,6 +46,7 @@ protected:
 
 class CostKspPulse : public CostKsp
 {
+    Path FindPath(const Flow &flow) override;
     PathPair FindPathPair(const Flow &flow) override;
 };
 

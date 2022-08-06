@@ -1,7 +1,7 @@
 #include "bp_path.h"
 #include "ksp_solver.h"
 #include "shortest_path.h"
-
+#include <algorithm>
 #include <vector>
 
 Path DelayKsp::FindPath(const Flow &flow)
@@ -106,7 +106,7 @@ Path CostKsp::FindPath(const Flow &flow)
     start_time = clock();
     KShortestPath ksp(graph_, LinkCost);
     double cost = ksp.Init(flow.from, flow.to);
-    // int num_iterations = 0;
+    int num_iterations = 0;
     Path result;
     while (cost < kMaxValue)
     {
@@ -119,14 +119,15 @@ Path CostKsp::FindPath(const Flow &flow)
             break;
         }
         ++ap_info_.iteration_num;
+        ++num_iterations;
         cost = ksp.FindNextPath();
     }
-    // std::cout << "Total number of iterations: " << num_iterations << "\n";
+    std::cout << "Total number of iterations: " << num_iterations << "\n";
     end_time = clock();
     ap_info_.total_time = end_time - start_time;
-    // std::cout << "Cost KSP takes: "
-    //           << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
-    //           << "(ms).\n";
+    std::cout << "Original Cost KSP takes: "
+              << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+              << "(ms).\n";
     ap_path_ = &result;
     return result;
 }
@@ -146,8 +147,10 @@ PathPair CostKsp::FindPathPair(const Flow &flow)
     PathPair result;
     while (cost < kMaxValue)
     {
+        ++num_iterations;
         const std::vector<Link *> &cur_path = ksp.GetPath();
         double delay = ComputeDelay(cur_path);
+        ++ap_info_.iteration_num;
         if (flow.CheckDelayUb(delay) && flow.CheckDelayLb(delay))
         {
             Flow bp_flow = flow;
@@ -168,18 +171,51 @@ PathPair CostKsp::FindPathPair(const Flow &flow)
                 break;
             }
         }
-        ++ap_info_.iteration_num;
         cost = ksp.FindNextPath();
     }
     ap_path_ = &result.ap_path;
     bp_path_ = &result.bp_path;
-    // std::cout << "Total number of AP iterations: " << num_iterations << "\n";
     end_time = clock();
+    // std::cout << "Total number of AP iterations: " << num_iterations << "\n";
     // std::cout << "BP search takes: " << bp_time_ms << "(ms).\n";
     // std::cout << "KSP (including BP search) takes: "
     //           << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
     //           << "(ms).\n";
     ap_info_.total_time = end_time - start_time - bp_info_.total_time;
+    return result;
+}
+
+Path CostKspPulse::FindPath(const Flow &flow)
+{
+    clock_t start_time;
+    clock_t end_time;
+    start_time = clock();
+    KShortestPath ksp(graph_, LinkCost);
+    double cost = ksp.Init(flow.from, flow.to);
+    ksp.AddSecondCostFunction(LinkDelay, flow.delay_ub);
+    int num_iterations = 0;
+    Path result;
+    while (cost < kMaxValue)
+    {
+        const std::vector<Link *> &cur_path = ksp.GetPath();
+        double delay = ComputeDelay(cur_path);
+        if (flow.CheckDelayUb(delay) && flow.CheckDelayLb(delay))
+        {
+            result.path_link = cur_path;
+            result.CompletePath();
+            break;
+        }
+        ++num_iterations;
+        ++ap_info_.iteration_num;
+        cost = ksp.FindNextPath();
+    }
+    std::cout << "Total number of iterations: " << num_iterations << "\n";
+    end_time = clock();
+    ap_info_.total_time = end_time - start_time;
+    std::cout << "Cost KSP takes: "
+              << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+              << "(ms).\n";
+    ap_path_ = &result;
     return result;
 }
 
@@ -197,7 +233,8 @@ PathPair CostKspPulse::FindPathPair(const Flow &flow)
     clock_t bp_end_time;
     double bp_time_ms = 0;
     double cost = ksp.Init(flow.from, flow.to);
-    // int num_iterations = 0;
+    ksp.AddSecondCostFunction(LinkDelay, flow.delay_ub);
+    int num_iterations = 0;
     PathPair result;
     std::vector<ConflictSet> conflict_sets;
     conflict_sets.reserve(20);
@@ -218,72 +255,73 @@ PathPair CostKspPulse::FindPathPair(const Flow &flow)
                     break;
                 }
             }
-            if (skip)
+            if (!skip)
             {
-                continue;
-            }
-            Flow bp_flow = flow;
-            bp_flow.delay_lb = delay - flow.diff > flow.delay_lb ? delay - flow.diff : flow.delay_lb;
-            bp_flow.delay_ub = delay + flow.diff < flow.delay_ub ? delay + flow.diff : flow.delay_ub;
-            bp_start_time = clock();
-            double bp_delay = pulse_bp.FindBpPath(cur_path, bp_flow, bp_info_.iteration_num);
-            bp_end_time = clock();
-            bp_info_.total_time += bp_end_time - bp_start_time;
-            bp_time_ms += static_cast<double>(bp_end_time - bp_start_time) /
-                          CLOCKS_PER_SEC * 1000;
-            if (bp_delay < kMaxValue)
-            {
-                result.ap_path.path_link = cur_path;
-                result.ap_path.CompletePath();
-                result.bp_path.path_link = pulse_bp.GetBpPath();
-                result.bp_path.CompletePath();
-                break;
-            }
-            else
-            {
-                double bp_delay_original_flow =
-                    conflict_set_bp.FindBpPath(cur_path, flow, bp_info_.iteration_num);
-                if (bp_delay_original_flow == kMaxValue)
+                Flow bp_flow = flow;
+                bp_flow.delay_lb = delay - flow.diff > flow.delay_lb ? delay - flow.diff : flow.delay_lb;
+                bp_flow.delay_ub = delay + flow.diff < flow.delay_ub ? delay + flow.diff : flow.delay_ub;
+                bp_start_time = clock();
+                double bp_delay = pulse_bp.FindBpPath(cur_path, bp_flow, bp_info_.iteration_num);
+                bp_end_time = clock();
+                bp_info_.total_time += bp_end_time - bp_start_time;
+                bp_time_ms += static_cast<double>(bp_end_time - bp_start_time) /
+                              CLOCKS_PER_SEC * 1000;
+                if (bp_delay < kMaxValue)
                 {
-                    conflict_sets.push_back(
-                        conflict_set_bp.GetConflictSet());
-                    ksp.AddConflictSet(conflict_sets.back());
+                    result.ap_path.path_link = cur_path;
+                    result.ap_path.CompletePath();
+                    result.bp_path.path_link = pulse_bp.GetBpPath();
+                    result.bp_path.CompletePath();
+                    break;
+                }
+                else
+                {
+                    double bp_delay_original_flow =
+                        conflict_set_bp.FindBpPath(cur_path, flow, bp_info_.iteration_num);
+                    if (bp_delay_original_flow == kMaxValue)
+                    {
+                        conflict_sets.push_back(
+                            conflict_set_bp.GetConflictSet());
+                        ksp.AddConflictSet(conflict_sets.back());
+                    }
                 }
             }
         }
         ++ap_info_.iteration_num;
+        ++num_iterations;
         cost = ksp.FindNextPath();
     }
     // std::cout << "Total number of AP iterations: " << num_iterations << "\n";
     end_time = clock();
     // std::cout << "BP search takes: " << bp_time_ms << "(ms).\n";
     // std::cout << "KSP (including BP search) takes: "
-    //   << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
-    //   << "(ms).\n";
+    //           << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+    //           << "(ms).\n";
     ap_info_.total_time = end_time - start_time - bp_info_.total_time;
     return result;
 }
 
-Path LagrangianKsp::FindPath(const Flow &flow)
-{
+Path LagrangianKsp::FindPath(const Flow &flow) {
     clock_t start_time;
     clock_t end_time;
     start_time = clock();
     double u;
-    if (default_u_ != kMaxValue)
-    {
-        u = default_u_;
+    double min_cost_delay_ratio = kMaxValue;
+    for (Link &link : graph_->GetMutableLinks()) {
+        double ratio = link.cost / link.delay;
+        if (ratio < min_cost_delay_ratio) {
+            min_cost_delay_ratio = ratio;
+        }
     }
-    else
-    {
+    if (default_u_ != kMaxValue) {
+        u = default_u_;
+    } else {
         u = CalculateMultiplier(graph_, flow);
-        if (u == kMaxValue)
-        {
+        if (u == kMaxValue) {
             return Path();
         }
     }
-    auto weight_func = [u](Link *link)
-    {
+    auto weight_func = [u](Link *link) {
         return link->cost + u * link->delay;
     };
     KShortestPath ksp(graph_, weight_func);
@@ -292,15 +330,12 @@ Path LagrangianKsp::FindPath(const Flow &flow)
     Path result;
     double min_cost = kMaxValue;
     double weight_ub = kMaxValue;
-    while (weight < weight_ub)
-    {
+    while (weight < weight_ub) {
         const std::vector<Link *> &cur_path = ksp.GetPath();
         double delay = ComputeDelay(cur_path);
-        if (flow.CheckDelayUb(delay) && flow.CheckDelayLb(delay))
-        {
+        if (flow.CheckDelayUb(delay) && flow.CheckDelayLb(delay)) {
             double cost = ComputeCost(cur_path);
-            if (cost < min_cost)
-            {
+            if (cost < min_cost) {
                 result.path_link = cur_path;
                 min_cost = cost;
                 weight_ub = u < 0 ? cost + u * flow.delay_lb : cost + u * flow.delay_ub;
@@ -320,8 +355,16 @@ Path LagrangianKsp::FindPath(const Flow &flow)
     return result;
 }
 
-PathPair LagrangianKsp::FindPathPair(const Flow &flow)
-{
+class Cmp {
+ public:
+    bool operator()(const Path &a, const Path &b) {
+        return ComputeCost(a.path_link) > ComputeCost(b.path_link);
+    }
+};
+
+
+// new lagrangian
+PathPair LagrangianKsp::FindPathPair(const Flow &flow) {
     clock_t start_time;
     clock_t end_time;
     start_time = clock();
@@ -329,74 +372,228 @@ PathPair LagrangianKsp::FindPathPair(const Flow &flow)
     clock_t bp_end_time;
     double bp_time_ms = 0;
     double u;
-    if (default_u_ != kMaxValue)
-    {
+    double min_cost_delay_ratio = kMaxValue;
+    for (Link &link : graph_->GetMutableLinks()) {
+        double ratio = link.cost / link.delay;
+        if (ratio < min_cost_delay_ratio) {
+            min_cost_delay_ratio = ratio;
+        }
+    }
+    if (default_u_ != kMaxValue) {
         u = default_u_;
     }
-    else
-    {
+    else {
         u = CalculateMultiplier(graph_, flow);
-        if (u == kMaxValue)
-        {
+        if (u == kMaxValue) {
             return PathPair();
         }
     }
-    auto weight_func = [u](Link *link)
-    {
+    auto weight_func = [u](Link *link) {
         return link->cost + u * link->delay;
     };
+    // std::cout << std::endl;
+    // std::cout << u << std::endl;
     KShortestPath ksp(graph_, weight_func);
     KspBp ksp_bp(graph_);
     double weight = ksp.Init(flow.from, flow.to);
+    double weight_buffer = weight;
     int num_iterations = 0;
     PathPair result;
     double min_cost = kMaxValue;
     double weight_ub = kMaxValue;
-    while (weight < weight_ub)
-    {
+    int cnt = 0;
+    std::priority_queue<Path, std::vector<Path>, Cmp> stored_path;
+    while (true) {
         const std::vector<Link *> &cur_path = ksp.GetPath();
         double delay = ComputeDelay(cur_path);
-        // if (num_iterations % 1000 == 1)
-        //     std::cout << "iterations " << num_iterations << ", delay: "
-        //               << delay << ", weight: " << weight << ", weight ub: "
-        //               << weight_ub << "\n";
-        if (flow.CheckDelayUb(delay) && flow.CheckDelayLb(delay))
-        {
-            Flow bp_flow = flow;
-            bp_flow.delay_lb = delay - flow.diff > flow.delay_lb ? delay - flow.diff : flow.delay_lb;
-            bp_flow.delay_ub = delay + flow.diff < flow.delay_ub ? delay + flow.diff : flow.delay_ub;
+        if (delay == kMaxValue)
+            break;
+        if (weight > weight_ub) {
+            std::cout << stored_path.size() << std::endl;
+            Path path = stored_path.top();
+            std::cout << "Path cost: " << path.cost << " Path delay: " << path.delay << std::endl;
+            stored_path.pop();
+            // std::cout << "hello" << std::endl;
             bp_start_time = clock();
-            double bp_delay = ksp_bp.FindBpPath(cur_path, bp_flow, bp_info_.iteration_num);
-            // std::cout << "bp_iteration_num: " << bp_info_.iteration_num << std::endl;
+            double bp_delay = ksp_bp.FindBpPath(path.path_link, flow, bp_info_.iteration_num);
+            ++cnt;
             bp_end_time = clock();
             bp_info_.total_time += bp_end_time - bp_start_time;
-            bp_time_ms += static_cast<double>(bp_end_time - bp_start_time) /
-                          CLOCKS_PER_SEC * 1000;
-            if (bp_delay < kMaxValue)
-            {
-                double cost = ComputeCost(cur_path);
-                if (cost < min_cost)
-                {
-                    result.ap_path.path_link = cur_path;
-                    result.bp_path.path_link = ksp_bp.GetBpPath();
-                    min_cost = cost;
-                    weight_ub = u < 0 ? cost + u * flow.delay_lb : cost + u * flow.delay_ub;
-                }
+            if (bp_delay < kMaxValue) {
+                result.ap_path.path_link = path.path_link;
+                result.bp_path.path_link = ksp_bp.GetBpPath();
+                ap_path_ = &result.ap_path;
+                bp_path_ = &result.bp_path;
+                end_time = clock();
+                std::cout << "Parse 1 finished!, Iteration time: " << cnt << std::endl; 
+                ap_info_.total_time = end_time - start_time - bp_info_.total_time;
+                return result;
             }
+
+            double cost;
+            if (stored_path.size() == 0) {
+                cost = kMaxValue;
+            } else {
+                cost = stored_path.top().cost;
+            }
+            weight_ub = u < 0 ? cost + u * flow.delay_lb : cost + u * flow.delay_ub;
+        }
+        if (flow.CheckDelayUb(delay) && flow.CheckDelayLb(delay)) {
+            Path path;
+            path.path_link = cur_path;
+            path.cost = ComputeCost(path.path_link);
+            path.CompletePath();
+            stored_path.push(path);
+            double cost = stored_path.top().cost;
+            weight_ub = u < 0 ? cost + u * flow.delay_lb : cost + u * flow.delay_ub;
         }
         ++ap_info_.iteration_num;
         weight = ksp.FindNextPath();
     }
-    result.ap_path.CompletePath();
-    result.bp_path.CompletePath();
-    ap_path_ = &result.ap_path;
-    bp_path_ = &result.bp_path;
-    // std::cout << "Total number of iterations: " << num_iterations << "\n";
-    end_time = clock();
-    ap_info_.total_time = end_time - start_time - bp_info_.total_time;
-    // std::cout << "BP search takes: " << bp_time_ms << "(ms).\n";
-    // std::cout << "LagrangianKsp with u=" << u << " takes: "
-    //           << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
-    //           << "(ms).\n";
+    std::cout << "Parse2: " << std::endl;
+    bp_start_time = clock();
+    // std::cout << "\nsize: " << stored_path.size() << std::endl;
+    while (!stored_path.empty()) {
+        Path path = stored_path.top();
+        stored_path.pop();
+        bp_start_time = clock();
+        double bp_delay = ksp_bp.FindBpPath(path.path_link, flow, bp_info_.iteration_num);
+        bp_end_time = clock();
+        bp_info_.total_time += bp_end_time - bp_start_time;
+        if (bp_delay < kMaxValue) {
+            result.ap_path.path_link = path.path_link;
+            result.bp_path.path_link = ksp_bp.GetBpPath();
+            ap_path_ = &result.ap_path;
+            bp_path_ = &result.bp_path;
+            end_time = clock();
+            bp_end_time = clock();
+            ap_info_.total_time = end_time - start_time - bp_info_.total_time;
+            return result;
+        }
+    }
     return result;
 }
+
+
+// PathPair LagrangianKsp::FindPathPair(const Flow &flow)
+// {
+//     clock_t start_time;
+//     clock_t end_time;
+//     start_time = clock();
+//     clock_t bp_start_time;
+//     clock_t bp_end_time;
+//     double bp_time_ms = 0;
+//     double u;
+//     double min_cost_delay_ratio = kMaxValue;
+//     for (Link &link : graph_->GetMutableLinks())
+//     {
+//         double ratio = link.cost / link.delay;
+//         if (ratio < min_cost_delay_ratio)
+//         {
+//             min_cost_delay_ratio = ratio;
+//         }
+//     }
+//     if (default_u_ != kMaxValue)
+//     {
+//         u = default_u_;
+//     }
+//     else
+//     {
+//         u = CalculateMultiplier(graph_, flow);
+//         if (u == kMaxValue)
+//         {
+//             return PathPair();
+//         }
+//     }
+//     auto weight_func = [u](Link *link)
+//     {
+//         return link->cost + u * link->delay;
+//     };
+//     // std::cout << std::endl;
+//     // std::cout << u << std::endl;
+//     KShortestPath ksp(graph_, weight_func);
+//     KspBp ksp_bp(graph_);
+//     double weight = ksp.Init(flow.from, flow.to);
+//     double weight_buffer = weight;
+//     int num_iterations = 0;
+//     PathPair result;
+//     double min_cost = kMaxValue;
+//     double weight_ub = kMaxValue;
+//     // std::priority_queue<Path, std::vector<Path>, Cmp> stored_path;
+
+//     weight_ub = kMaxValue;
+//     weight = weight_buffer;
+//     int cnt = 0;
+//     while (weight < weight_ub)
+//     {
+//         num_iterations++;
+//         const std::vector<Link *> &cur_path = ksp.GetPath();
+//         double delay = ComputeDelay(cur_path);
+//         // std::cout << "u: " << u << " UB: " << flow.delay_ub << " LB: "
+//         //           << flow.delay_lb << " Current_Delay: " << delay << " Cost: "
+//         //           << ComputeCost(cur_path) << " Min_Cost: " << min_cost
+//         //           << " Weight: " << weight << " Weight_ub: " << weight_ub << " ";
+//         double cost = ComputeCost(cur_path);
+//         // for (Link *link : cur_path)
+//         // {
+//         //     std::cout << link->link_id << " " << link->cost << " " << link->delay << "->";
+//         // }
+//         // std::cout << std::endl;
+//         if (cost >= min_cost)
+//         {
+//             weight = ksp.FindNextPath();
+//             ++ap_info_.iteration_num;
+//             continue;
+//         }
+//         if (flow.CheckDelayUb(delay) && flow.CheckDelayLb(delay))
+//         {
+//             Flow bp_flow = flow;
+//             bp_flow.delay_lb = delay - flow.diff > flow.delay_lb ? delay - flow.diff : flow.delay_lb;
+//             bp_flow.delay_ub = delay + flow.diff < flow.delay_ub ? delay + flow.diff : flow.delay_ub;
+//             bp_start_time = clock();
+//             double bp_delay = ksp_bp.FindBpPath(cur_path, bp_flow, bp_info_.iteration_num);
+//             std::cout << "Path cost: " << cost << " Path delay: " << delay << std::endl;
+//             ++cnt;
+//             // std::cout << "bp_iteration_num: " << bp_info_.iteration_num << std::endl;
+//             bp_end_time = clock();
+//             bp_info_.total_time += bp_end_time - bp_start_time;
+//             bp_time_ms += static_cast<double>(bp_end_time - bp_start_time) /
+//                           CLOCKS_PER_SEC * 1000;
+//             // std::cout << "u: " << u << " UB: " << flow.delay_ub << " LB: "
+//             //           << flow.delay_lb << " Current_Delay: " << delay
+//             //           << " BP_Delay: " << bp_delay << " Cost: " << ComputeCost(cur_path) << std::endl;
+//             if (bp_delay < kMaxValue)
+//             {
+//                 // double cost = ComputeCost(cur_path);
+//                 if (cost < min_cost)
+//                 {
+//                     result.ap_path.path_link = cur_path;
+//                     result.bp_path.path_link = ksp_bp.GetBpPath();
+//                     min_cost = cost;
+//                     weight_ub = u < 0 ? cost + u * flow.delay_lb : cost + u * flow.delay_ub;
+//                     double coefficient = (weight_ub - weight) / ((delay - flow.delay_ub) * (delay - flow.delay_ub));
+//                     double gradient = delay - flow.delay_ub;
+//                     // std::cout << "coefficient: " << coefficient << " gradient: "
+//                     //           << gradient << " ratio: " << min_cost_delay_ratio
+//                     //           << "current u: " << u << std::endl;
+//                     u = std::max(-min_cost_delay_ratio, coefficient * gradient);
+//                 }
+//             }
+//         }
+//         ++ap_info_.iteration_num;
+//         weight = ksp.FindNextPath();
+//     }
+//     std::cout << "cnt: " << cnt << std::endl;
+//     result.ap_path.CompletePath();
+//     result.bp_path.CompletePath();
+//     ap_path_ = &result.ap_path;
+//     bp_path_ = &result.bp_path;
+//     end_time = clock();
+//     ap_info_.total_time = end_time - start_time - bp_info_.total_time;
+//     // std::cout << "Total number of iterations: " << num_iterations << "\n";
+//     // std::cout << "BP search takes: " << bp_time_ms << "(ms).\n";
+//     // std::cout << "LagrangianKsp with u=" << u << " takes: "
+//     //           << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+//     //           << "(ms).\n";
+//     return result;
+// }

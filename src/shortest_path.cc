@@ -1,3 +1,4 @@
+// Copyright [2022] <Shizhen Zhao, Tianyu Zhu>
 #include "shortest_path.h"
 
 #include <queue>
@@ -365,43 +366,55 @@ double KShortestPath::FindNextPath() {
     for (Link* link : included_links) {
         base_cost += cost_func_(link);
     }
-    for (int k = included_links.size(); k < links.size(); ++k) {
-        Link* cur_link = links[k];
-        excluded_links.push_back(cur_link);
-        cur_link->status = Conflict;
-        std::vector<Link*> reverse_path;
-        reverse_path.reserve(50);
-        NodeId mid_node_id = cur_link->source_id;
-        double cost = astar_.FindPathFromSrc(mid_node_id, &reverse_path);
-        if (cost < kMaxValue) {
-            all_paths_.emplace_back(
-                reverse_path, included_links, excluded_links);
-            PathCostPair path_cost_pair;
-            path_cost_pair.cost = cost + base_cost;
-            path_cost_pair.path_ptr = &all_paths_.back();
-            path_heap_.push(path_cost_pair);
+    double cost2 = 0;
+    if (cost_func2_) {
+        for (Link* link : included_links) {
+            cost2 += cost_func2_(link);
         }
-        // Prepare for the next search
-        if (k == links.size() - 1) {
-            break;
-        }
-        bool stop = false;
-        for (ConflictStatus& cs : conflict_status) {
-            cs.Add(cur_link);
-            if (cs.CoverConflictSet()) {
-                stop = true;
+        std::vector<Link*> dumb_path;
+        dumb_path.reserve(50);
+        cost2 += astar2_->FindPathFromSrc(
+            links[included_links.size()]->source_id, &dumb_path);
+    }
+    if (cost2 <= cost2_ub_) {
+        for (int k = included_links.size(); k < links.size(); ++k) {
+            Link* cur_link = links[k];
+            excluded_links.push_back(cur_link);
+            cur_link->status = Conflict;
+            std::vector<Link*> reverse_path;
+            reverse_path.reserve(50);
+            NodeId mid_node_id = cur_link->source_id;
+            double cost = astar_.FindPathFromSrc(mid_node_id, &reverse_path);
+            if (cost < kMaxValue) {
+                all_paths_.emplace_back(
+                    reverse_path, included_links, excluded_links);
+                PathCostPair path_cost_pair;
+                path_cost_pair.cost = cost + base_cost;
+                path_cost_pair.path_ptr = &all_paths_.back();
+                path_heap_.push(path_cost_pair);
+            }
+            // Prepare for the next search
+            if (k == links.size() - 1) {
                 break;
             }
+            bool stop = false;
+            for (ConflictStatus& cs : conflict_status) {
+                cs.Add(cur_link);
+                if (cs.CoverConflictSet()) {
+                    stop = true;
+                    break;
+                }
+            }
+            if (stop) {
+                break;
+            }
+            included_links.push_back(cur_link);
+            for (Link* ingress_link : graph_->GetIngressLinks(mid_node_id)) {
+                ingress_link->status = Conflict;
+            }
+            base_cost += cost_func_(cur_link);
+            excluded_links.pop_back();
         }
-        if (stop) {
-            break;
-        }
-        included_links.push_back(cur_link);
-        for (Link* ingress_link : graph_->GetIngressLinks(mid_node_id)) {
-            ingress_link->status = Conflict;
-        }
-        base_cost += cost_func_(cur_link);
-        excluded_links.pop_back();
     }
     // Reset link status.
     for (Link* link : links) {
@@ -467,14 +480,15 @@ double CalculateMultiplier(Graph* graph, const Flow &flow) {
         links.clear();
         double min_weight = combined_sp_.FindPathFromSrc(flow.from, &links);
         double delay = ComputeDelay(links);
-        // std::cout << "case 1\n";
         if (delay < flow.delay_lb) {
+            // std::cout << "case 1a\n";
             return -min_cost_delay_ratio;
         } else {
             double cost = ComputeCost(links);
             double multiplier =
                 (cost - min_cost) / (min_cost_path_delay - delay);
             assert(multiplier >= -min_cost_delay_ratio);
+            // std::cout << "case 1b " << multiplier << "\n";
             return multiplier;
         }
     } else if (min_cost_path_delay > flow.delay_ub) {

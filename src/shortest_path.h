@@ -1,3 +1,5 @@
+// Copyright [2022] <Shizhen Zhao, Tianyu Zhu>
+
 #ifndef SHORTEST_PATH_H_
 #define SHORTEST_PATH_H_
 #include <assert.h>
@@ -120,9 +122,20 @@ class KShortestPath {
             link_status_backup_[link.link_id] = link.status;
         }
     }
+    ~KShortestPath() {
+        if (astar2_) {
+            delete astar2_;
+        }
+    }
     // Init computes the shortest path, and returns the cost
     double Init(NodeId src, NodeId dst);
     double FindNextPath();
+    void AddSecondCostFunction(CostFunc g, double ub) {
+        cost2_ub_ = ub;
+        cost_func2_ = g;
+        astar2_ = new AStar(graph_, g);
+        astar2_->InitWithDst(dst_);
+    }
     void AddConflictSet(const ConflictSet& conflict_set);
     const std::vector<Link*>& GetPath() {
         while (!path_heap_.top().path_ptr->valid) {
@@ -164,6 +177,10 @@ class KShortestPath {
     AStar astar_;
     NodeId src_;
     NodeId dst_;
+
+    CostFunc cost_func2_ = nullptr;
+    double cost2_ub_;
+    AStar* astar2_ = nullptr;
 };
 
 // Helper functions.
