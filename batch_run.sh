@@ -1,7 +1,8 @@
 #!/bin/bash
 {
 work_dir=`pwd`
-type_name="data/DelayRange"
+type_name="SrlgDisjoint"
+tunnel_name="large.csv"
 data_dir=${work_dir}/${type_name}
 # cd $work_dir
 if [ ! -d $data_dir  ]
@@ -14,21 +15,10 @@ then
   rm -rf tunnels
   mkdir ${work_dir}"/tunnels"
 fi
-if [ -f srlg_log ]
-then
-  rm srlg_log
-fi
-if [ -f link_log ]
-then
-  rm link_log
-fi
-if [ -f Result_Analysis ]
-then
-  rm Result_Analysis
-fi
+
 make main
-make check_res
-make split
+# g++ -o check_res check_res.cc
+g++ -o split split_tunnel.cc
 num=0
 mkdir "LagrangianKsp"
 # for Type in $(ls $data_dir)
@@ -42,8 +32,9 @@ mkdir "LagrangianKsp"
 
         newtoponame=${type_name}"_"${Case}"_topo.csv"
         cp -f $data_dir/${Case}/topo.csv $work_dir/$newtoponame
-        newtunnelname=${type_name}"_"${Case}"flow_info.csv"
-        cp -f $data_dir/${Case}/flow_info.csv $work_dir/$newtunnelname
+        newtunnelname=${type_name}"_"${Case}${tunnel_name}
+        # echo $data_dir/${Case}/${tunnel_name}
+        cp -f $data_dir/${Case}/${tunnel_name} $work_dir/$newtunnelname
         ./split $newtunnelname
 
         echo $work_dir/$newtunnelname
@@ -55,14 +46,6 @@ mkdir "LagrangianKsp"
             case=${name%_*}
             echo $file
             timeout 1000s ./main ${newtoponame} "./tunnels/"${file} >> ${case}"_log.csv"
-            # echo ${case}"_log"
-            num=$(($num + 1))
-            a=`expr $num % 200`
-            if [ $a = 0 ]
-            then
-                echo "hello"
-                ./check_res srlg_log.csv link_log.csv
-            fi
         done
         echo ${data_dir}/${Case}/
         cp ./${case}"_log.csv" ./LagrangianKsp/
@@ -75,7 +58,7 @@ mkdir "LagrangianKsp"
             if [ $type = "topo" ]
             then
             rm ${case}"_topo.csv"
-            rm ${case}"flow_info.csv"
+            rm ${case}${tunnel_name}
             fi
         done
     done
