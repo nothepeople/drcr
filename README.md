@@ -19,10 +19,17 @@
 # Run Tests
 
 There are three ways to run our code.
+
+Run all the tests in one directory.
+
 ```c++
 make test
 ./test
 ```
+
+- In test.cc, you can easily change the test directory and run all the tests therein.
+
+Run a particular test:
 
 ```c++
 make main
@@ -35,11 +42,11 @@ make main
 
 - it is same when you solve the Srlg-DRCR problem.
 
+Use **batch_run.sh** to do batch processing. 
+
 ```
 ./batch_run.sh
 ```
-
-- You may also use **batch_run.sh** to do batch processing. 
 
   - You need to change the location of **data_dir** to the data directory you want 
 

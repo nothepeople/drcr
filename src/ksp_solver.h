@@ -44,8 +44,8 @@ protected:
     Path *bp_path_;
 };
 
-class CostKspPulse : public CostKsp
-{
+class CostKspPulse : public CostKsp {
+ public:
     Path FindPath(const Flow &flow) override;
     PathPair FindPathPair(const Flow &flow) override;
 };
