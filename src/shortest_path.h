@@ -179,7 +179,7 @@ class KShortestPath {
     NodeId dst_;
 
     CostFunc cost_func2_ = nullptr;
-    double cost2_ub_;
+    double cost2_ub_ = kMaxValue;
     AStar* astar2_ = nullptr;
 };
 
