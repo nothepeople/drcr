@@ -456,6 +456,7 @@ double CalculateMultiplier(Graph* graph, const Flow &flow) {
     links.reserve(100);
     double min_delay = delay_sp_.FindPathFromSrc(flow.from, &links);
     double min_delay_path_cost = ComputeCost(links);
+    std::cout << "min delay path cost : " << min_delay_path_cost << "\n";
     if (min_delay > flow.delay_ub) {
         return kMaxValue;
     }
@@ -463,6 +464,7 @@ double CalculateMultiplier(Graph* graph, const Flow &flow) {
     cost_sp_.InitWithDst(flow.to);
     links.clear();
     double min_cost = cost_sp_.FindPathFromSrc(flow.from, &links);
+    std::cout << "min cost: " << min_cost << "\n";
     double min_cost_path_delay = ComputeDelay(links);
     if (min_cost_path_delay < flow.delay_lb) {
         double min_cost_delay_ratio = kMaxValue;
@@ -475,10 +477,10 @@ double CalculateMultiplier(Graph* graph, const Flow &flow) {
         auto weight_func = [min_cost_delay_ratio](Link* link) {
             return link->cost - min_cost_delay_ratio * link->delay;
         };
-        Dijkstra combined_sp_(graph, weight_func);
-        combined_sp_.InitWithDst(flow.to);
+        Dijkstra combined_sp(graph, weight_func);
+        combined_sp.InitWithDst(flow.to);
         links.clear();
-        double min_weight = combined_sp_.FindPathFromSrc(flow.from, &links);
+        double min_weight = combined_sp.FindPathFromSrc(flow.from, &links);
         double delay = ComputeDelay(links);
         if (delay < flow.delay_lb) {
             // std::cout << "case 1a\n";
@@ -493,8 +495,41 @@ double CalculateMultiplier(Graph* graph, const Flow &flow) {
         }
     } else if (min_cost_path_delay > flow.delay_ub) {
         // std::cout << "case 2\n";
-        return (min_delay_path_cost - min_cost) /
-               (min_cost_path_delay - min_delay);
+        double multiplier;
+        double left_intercept = min_cost;
+        double left_slop = min_cost_path_delay;
+        double right_intercept = min_delay_path_cost;
+        double right_slop = min_delay;
+        double derivative;
+        double last = -1;
+        while (true) {
+            // std::cout << "left: " << left_intercept << " + " << left_slop - flow.delay_ub << "\n";
+            // std::cout << "right: " << right_intercept << " + " << right_slop - flow.delay_ub << "\n";
+            multiplier = (right_intercept - left_intercept) / (left_slop - right_slop);
+            if (multiplier == last) {
+                return multiplier;
+            }
+            auto weight_func = [multiplier](Link* link) {
+                return link->cost + multiplier * link->delay;
+            };
+            Dijkstra combined_sp(graph, weight_func);
+            combined_sp.InitWithDst(flow.to);
+            links.clear();
+            double min_weight = combined_sp.FindPathFromSrc(flow.from, &links);
+            double delay = ComputeDelay(links);
+            derivative = delay - flow.delay_ub;
+            // std::cout << multiplier << " " << derivative << "\n";
+            if (derivative > 1e-3) {
+                left_intercept = ComputeCost(links);
+                left_slop = delay;
+            } else if (derivative < -1e-3) {
+                right_intercept = ComputeCost(links);
+                right_slop = delay;
+            } else {
+                return multiplier;
+            }
+            last = multiplier;
+        }
     } else {
         // std::cout << "case 3\n";
         return 0;
