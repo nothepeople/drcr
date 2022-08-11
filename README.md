@@ -19,39 +19,34 @@
 # Run Tests
 
 There are three ways to run our code.
-
-Run all the tests in one directory.
-
 ```c++
 make test
 ./test
 ```
 
-- In test.cc, you can easily change the test directory and run all the tests therein.
-
-Run a particular test:
-
 ```c++
 make main
-./main ./"TopoFilePath" ./"TunnelFilePath" 
+./main ./"TopoFilePath" ./"TunnelFilePath" "method_id"
 ```
 
-- In main.cc, you can easily change the method you are going to apply to solve the test instance.
+- In main.cc, you can easily change the method you are going to apply to solve the test instance by change method_id.
 
-- e.g. if you want to use the Pulse+ to solve DRCR problem, you can set line 53 "LagrangianKsp pulse" to "Pulse pulse" and keep everything else the same.
+- As for DRCR problem, you can choose 1 for Pulse+, 2 for DelayKsp, 3 for CostKsp, 4 for CostKspPulse, 5 for LagtangianKsp, 7 for BidirectionalPulse.
 
-- it is same when you solve the Srlg-DRCR problem.
-
-Use **batch_run.sh** to do batch processing. 
+- As for Srlg-Disjoint DRCR problem, you can choose 1 for Pulse+, 2 for DelayKsp, 3 for CostKsp, 4 for CostKspPulse, 5 for LagtangianKsp, 6 for CosePulse+.
 
 ```
 ./batch_run.sh
 ```
 
-  - You need to change the location of **data_dir** to the data directory you want 
+- You may also use **batch_run.sh** to do batch processing. 
 
-  - You may select the **type_name** between SrlgDisjoint and DelayRange.
+  - You may change the location of **data_dir** to the data directory you want 
 
-  - You may edit line 23, for example "LagrangianKsp" to the name you want to use. Let's take the name "LagrangianKsp" for a example, the program will create a folder called "LagrangianKsp" the test results will output to the folder in the working directory
+  - You may select the **type_name** between SrlgDisjoint and DelayRange(the default value is DelayRange)
 
+  - You shall select the method you are going to use by changing the value of **case_id**(the default value is 1)
+
+  - The output of the program will be in the **output_folder** in the working directory. The value of **output_folder** depends on **type_name** and **case_id**(you can check detail information in batch_run.sh)
+  
   - You may change the value of **tunnel_name** based on the test case you want. **flow_info** for DRCR problem(you can also use **tunnel.csv**) and **large.csv/small.csv** for Srlg-DRCR problem.**The tunnel_name you select should in accordance with the type_name**
