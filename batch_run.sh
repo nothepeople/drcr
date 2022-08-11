@@ -1,9 +1,14 @@
 #!/bin/bash
 {
 work_dir=`pwd`
-type_name="SrlgDisjoint"
-tunnel_name="large.csv"
+type_name="DelayRange"
+tunnel_name="flow_info"
 data_dir=${work_dir}/data/${type_name}
+# case_id DRCR: 1-pulse+, 2-delayksp, 3-costksp, 4-costksppulse+
+#      5-lagrangianksp, 6-cosepulse+
+# case_id Srlg: 1-pulse+, 2-delayksp, 3-costksp, 4-costksppulse+
+#      5-lagrangianksp, 7-JPPulse+
+case_id=1
 # cd $work_dir
 if [ ! -d $data_dir  ]
 then
@@ -17,9 +22,11 @@ then
 fi
 
 make main
-make split
+# g++ -o check_res check_res.cc
+g++ -o split split_tunnel.cc
 num=0
-mkdir "LagrangianKsp"
+output_folder="DelayKsp"
+mkdir ${output_folder}
 # for Type in $(ls $data_dir)
 # do
     for Case in $(ls $data_dir/)
@@ -44,10 +51,10 @@ mkdir "LagrangianKsp"
             type=${name##*_}
             case=${name%_*}
             echo $file
-            timeout 1000s ./main ${newtoponame} "./tunnels/"${file} >> ${case}"_log.csv"
+            timeout 10s ./main ${newtoponame} "./tunnels/"${file} case_id >> ${case}"_log.csv"
         done
         echo ${data_dir}/${Case}/
-        cp ./${case}"_log.csv" ./LagrangianKsp/
+        cp ./${case}"_log.csv" ./${output_folder}/
         rm ./${case}"_log.csv"
         for file in $(ls ${work_dir})
         do

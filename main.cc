@@ -80,7 +80,7 @@ void test(std::string topo_path, std::string tunnel_path,int type_id)
                                 <<"2 for DelayKsp, "
                                 <<"3 for CostKsp, "
                                 <<"4 for CostKspPulse, "
-                                <<"5 for LagtangianKsp, "
+                                <<"5 for LagrangianKsp, "
                                 <<"6 for CosePulse+."
                                 <<std::endl;
                     flag = false;
@@ -150,8 +150,8 @@ void test(std::string topo_path, std::string tunnel_path,int type_id)
                                 <<"2 for DelayKsp, "
                                 <<"3 for CostKsp, "
                                 <<"4 for CostKspPulse, "
-                                <<"5 for LagtangianKsp, "
-                                <<"7 for BidirectionalPulse."
+                                <<"5 for LagrangianKsp, "
+                                <<"7 for BidirectionalPulse (Pulse+ with joint pruning)."
                                 <<std::endl;
                     flag =  false;
                 }
