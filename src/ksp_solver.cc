@@ -122,12 +122,12 @@ Path CostKsp::FindPath(const Flow &flow)
         ++num_iterations;
         cost = ksp.FindNextPath();
     }
-    std::cout << "Total number of iterations: " << num_iterations << "\n";
+    // std::cout << "Total number of iterations: " << num_iterations << "\n";
     end_time = clock();
     ap_info_.total_time = end_time - start_time;
-    std::cout << "Original Cost KSP takes: "
-              << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
-              << "(ms).\n";
+    // std::cout << "Original Cost KSP takes: "
+    //           << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+    //           << "(ms).\n";
     ap_path_ = &result;
     return result;
 }
@@ -209,12 +209,12 @@ Path CostKspPulse::FindPath(const Flow &flow)
         ++ap_info_.iteration_num;
         cost = ksp.FindNextPath();
     }
-    std::cout << "Total number of iterations: " << num_iterations << "\n";
+    // std::cout << "Total number of iterations: " << num_iterations << "\n";
     end_time = clock();
     ap_info_.total_time = end_time - start_time;
-    std::cout << "Cost KSP takes: "
-              << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
-              << "(ms).\n";
+    // std::cout << "Cost KSP takes: "
+    //           << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+    //           << "(ms).\n";
     ap_path_ = &result;
     return result;
 }

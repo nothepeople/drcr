@@ -456,7 +456,7 @@ double CalculateMultiplier(Graph* graph, const Flow &flow) {
     links.reserve(100);
     double min_delay = delay_sp_.FindPathFromSrc(flow.from, &links);
     double min_delay_path_cost = ComputeCost(links);
-    std::cout << "min delay path cost : " << min_delay_path_cost << "\n";
+    // std::cout << "min delay path cost : " << min_delay_path_cost << "\n";
     if (min_delay > flow.delay_ub) {
         return kMaxValue;
     }
@@ -464,7 +464,7 @@ double CalculateMultiplier(Graph* graph, const Flow &flow) {
     cost_sp_.InitWithDst(flow.to);
     links.clear();
     double min_cost = cost_sp_.FindPathFromSrc(flow.from, &links);
-    std::cout << "min cost: " << min_cost << "\n";
+    // std::cout << "min cost: " << min_cost << "\n";
     double min_cost_path_delay = ComputeDelay(links);
     if (min_cost_path_delay < flow.delay_lb) {
         double min_cost_delay_ratio = kMaxValue;
