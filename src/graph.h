@@ -137,6 +137,7 @@ class Graph
 {
 public:
     explicit Graph(const std::string &file_path);
+    explicit Graph(const std::vector<Link> &link);
 
     int NodeSize() const
     {
@@ -149,6 +150,18 @@ public:
     }
 
     void SortLinks();
+    //SortLinks_cost will use to sort node_to_egress_links_cost_ and node_to_ingress_links_cost_;
+    void SortLinks_cost();
+
+    const std::vector<Link> &GetLink() const
+    {
+        return links_;
+    }
+
+    const std::unordered_set<int> &GetNode() const
+    {
+        return nodes_;
+    }
 
     const std::vector<Link *> &GetEgressLinks(
         NodeId node) const
@@ -164,6 +177,14 @@ public:
         NodeId node) const
     {
         return node_to_ingress_links_.at(node);
+    }
+    const std::vector<Link *> &GetCostSortEgressLinks(NodeId node) const
+    {
+        return node_to_egress_links_cost_.at(node);
+    }
+    const std::vector<Link *> &GetCostSortIngressLinks(NodeId node) const
+    {
+        return node_to_ingress_links_cost_.at(node);
     }
     // 根据Egress Links的状态更新BP搜索中边的遍历顺序
     void UpdateBpEgressLinks();
@@ -214,6 +235,9 @@ private:
     std::unordered_set<NodeId> nodes_;
     std::vector<std::vector<Link *>> node_to_egress_links_;
     std::vector<std::vector<Link *>> node_to_ingress_links_;
+    //node_to_ingress_links_cost_ and node_to_egress_links_cost_ will sort by cost_weight
+    std::vector<std::vector<Link *>> node_to_egress_links_cost_;
+    std::vector<std::vector<Link *>> node_to_ingress_links_cost_;
     std::vector<std::vector<Link *>> bp_node_to_egress_links_;
     std::vector<std::vector<Link *>> srlg_group_;
     int size_;

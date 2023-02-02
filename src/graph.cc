@@ -267,9 +267,13 @@ Graph::Graph(const std::string &file_path)
     size_ = max_node_id_ + 1;
     node_to_egress_links_.clear();
     node_to_ingress_links_.clear();
+    node_to_egress_links_cost_.clear();
+    node_to_ingress_links_cost_.clear();
     bp_node_to_egress_links_.clear();
     node_to_egress_links_.reserve(size_);
     node_to_ingress_links_.reserve(size_);
+    node_to_egress_links_cost_.reserve(size_);
+    node_to_ingress_links_cost_.reserve(size_);
     bp_node_to_egress_links_.reserve(size_);
     for (NodeId i = 0; i < size_; ++i)
     {
@@ -283,6 +287,83 @@ Graph::Graph(const std::string &file_path)
         node_to_egress_links_[link.source_id].push_back(&link);
         node_to_ingress_links_[link.ter_id].push_back(&link);
     }
+    node_to_egress_links_cost_ = node_to_egress_links_;
+    node_to_ingress_links_cost_ = node_to_ingress_links_;
+    FindCousinLinks();
+}
+
+Graph::Graph(const std::vector<Link> &link)
+{
+    srlg_group_.reserve(100000);
+    for (int i = 0; i < 10000; ++i)
+    {
+        srlg_group_.push_back({});
+    }
+    links_ = link;
+    // std::srand(0);
+    // std::random_shuffle(links_.begin(), links_.end());
+    max_node_id_ = -1;
+    max_link_id_ = -1;
+    max_srlg_id_ = -1;
+    std::vector<Link *> index;
+    index.reserve(5000);
+    for (Link &link : links_)
+    {
+        if (link.source_id > max_node_id_)
+            max_node_id_ = link.source_id;
+        if (link.ter_id > max_node_id_)
+            max_node_id_ = link.ter_id;
+        if (link.link_id > max_link_id_)
+        {
+            max_link_id_ = link.link_id;
+        }
+        if (link.srlg_num != 0)
+        {
+            for (int i = 0; i < link.srlgs.size(); ++i)
+            {
+                if (link.srlgs[i] > max_srlg_id_)
+                {
+                    max_srlg_id_ = link.srlgs[i];
+                }
+                srlg_group_[link.srlgs[i]].push_back(&link);
+            }
+        }
+
+        nodes_.insert(link.source_id);
+        nodes_.insert(link.ter_id);
+    }
+    // 为每个link设置一个专属的srlg，该srlg仅包含一条link.
+    for (Link &link : links_)
+    {
+        link.srlg_num += 1;
+        link.srlgs.push_back(++max_srlg_id_);
+        srlg_group_[max_srlg_id_].push_back(&link);
+    }
+    size_ = max_node_id_ + 1;
+    node_to_egress_links_.clear();
+    node_to_ingress_links_.clear();
+    node_to_egress_links_cost_.clear();
+    node_to_ingress_links_cost_.clear();
+    bp_node_to_egress_links_.clear();
+    node_to_egress_links_.reserve(size_);
+    node_to_ingress_links_.reserve(size_);
+    node_to_egress_links_cost_.reserve(size_);
+    node_to_ingress_links_cost_.reserve(size_);
+    bp_node_to_egress_links_.reserve(size_);
+    for (NodeId i = 0; i < size_; ++i)
+    {
+        // assert(nodes_.find(i) != nodes_.end());
+        node_to_egress_links_.push_back({});
+        bp_node_to_egress_links_.push_back({});
+        node_to_ingress_links_.push_back({});
+    }
+    for (Link &link : links_)
+    {
+        node_to_egress_links_[link.source_id].push_back(&link);
+        node_to_ingress_links_[link.ter_id].push_back(&link);
+    }
+    node_to_egress_links_cost_ = node_to_egress_links_;
+    node_to_ingress_links_cost_ = node_to_ingress_links_;
     FindCousinLinks();
 }
 
@@ -326,6 +407,17 @@ void Graph::SortLinks()
                   node_to_egress_links_[i].end(), Compare);
         std::sort(node_to_ingress_links_[i].begin(),
                   node_to_ingress_links_[i].end(), Compare);
+    }
+}
+
+void Graph::SortLinks_cost()
+{
+    for(NodeId i = 0; i < size_; ++i)
+    {
+        std::sort(node_to_egress_links_cost_[i].begin(),
+                  node_to_egress_links_cost_[i].end(),Compare);
+        std::sort(node_to_ingress_links_cost_[i].begin(),
+                  node_to_ingress_links_cost_[i].end(),Compare);
     }
 }
 
