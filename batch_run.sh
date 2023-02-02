@@ -120,8 +120,7 @@ mkdir ${output_folder}
             name=${file%%.*}
             type=${name##*_}
             case=${name%_*}
-            echo $file
-            timeout 10s ./main ${newtoponame} "./tunnels/"${file} case_id >> ${case}"_log.csv"
+            timeout 10s ./main ${newtoponame} "./tunnels/"${file} ${case_id} >> ${case}"_log.csv"
         done
         echo ${data_dir}/${Case}/
         cp ./${case}"_log.csv" ./${output_folder}/
