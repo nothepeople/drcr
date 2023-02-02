@@ -4,6 +4,7 @@
 #include <sstream>
 #include "src/ap_path.h"
 #include "src/bp_path.h"
+#include "src/heuristic.h"
 #include "src/graph.h"
 #include "src/ksp_solver.h"
 #include "src/shortest_path.h"
@@ -144,6 +145,15 @@ void test(std::string topo_path, std::string tunnel_path,int type_id)
                         std::cout << "Error!!!!!" << std::endl;
                     break;
                 }
+                case 8:{
+                    EffSol pulse;
+                    pulse.SetupTopology(&graph);
+                    Path path = pulse.FindPath(demand.GetFlow(i));
+                    pulse.PrintToCsv();
+                    if (path.cost != demand.GetFlow(i).opt_cost)
+                        std::cout << "Error!!!!!" << std::endl;
+                    break;
+                }
                 default:{
                     std::cout<<"\nThe type id entered is meaningless, as for DRCR, "
                                 <<"you can choose 1 for Pulse+, "
@@ -151,7 +161,8 @@ void test(std::string topo_path, std::string tunnel_path,int type_id)
                                 <<"3 for CostKsp, "
                                 <<"4 for CostKspPulse, "
                                 <<"5 for LagrangianKsp, "
-                                <<"7 for BidirectionalPulse (Pulse+ with joint pruning)."
+                                <<"7 for BidirectionalPulse (Pulse+ with joint pruning), "
+                                <<"8 for Heuristic Solution Developed in 1985."
                                 <<std::endl;
                     flag =  false;
                 }

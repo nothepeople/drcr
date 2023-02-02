@@ -94,8 +94,7 @@ then
 fi
 
 make main
-# g++ -o check_res check_res.cc
-g++ -o split split_tunnel.cc
+make split
 num=0
 mkdir ${output_folder}
 # for Type in $(ls $data_dir)
