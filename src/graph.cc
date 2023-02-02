@@ -216,8 +216,8 @@ bool Graph::IsCousinLinkPair(const Link *a, const Link *b)
 
 Graph::Graph(const std::string &file_path)
 {
-    srlg_group_.reserve(100000);
-    for (int i = 0; i < 10000; ++i)
+    srlg_group_.reserve(1000000);
+    for (int i = 0; i < 1000000; ++i)
     {
         srlg_group_.push_back({});
     }
@@ -294,8 +294,8 @@ Graph::Graph(const std::string &file_path)
 
 Graph::Graph(const std::vector<Link> &link)
 {
-    srlg_group_.reserve(100000);
-    for (int i = 0; i < 10000; ++i)
+    srlg_group_.reserve(1000000);
+    for (int i = 0; i < 1000000; ++i)
     {
         srlg_group_.push_back({});
     }
