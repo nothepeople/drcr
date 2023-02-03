@@ -18,7 +18,7 @@
 
 # Run Tests
 
-There are three ways to run our code.
+There are two ways to run our code.
 ```c++
 make test
 ./test
@@ -31,22 +31,6 @@ make main
 
 - In main.cc, you can easily change the method you are going to apply to solve the test instance by change method_id.
 
-- As for DRCR problem, you can choose 1 for Pulse+, 2 for DelayKsp, 3 for CostKsp, 4 for CostKspPulse, 5 for LagtangianKsp, 7 for BidirectionalPulse.
+- As for DRCR problem, you can choose 1 for Pulse+, 2 for DelayKsp, 3 for CostKsp, 4 for CostKspPulse, 5 for LagtangianKsp, 7 for BidirectionalPulse, 8 for a heuristic algorithm developed in 1985.
 
 - As for Srlg-Disjoint DRCR problem, you can choose 1 for Pulse+, 2 for DelayKsp, 3 for CostKsp, 4 for CostKspPulse, 5 for LagtangianKsp, 6 for CosePulse+.
-
-```
-./batch_run.sh
-```
-
-- You may also use **batch_run.sh** to do batch processing. 
-
-  - You may change the location of **data_dir** to the data directory you want 
-
-  - You may select the **type_name** between SrlgDisjoint and DelayRange(the default value is DelayRange)
-
-  - You shall select the method you are going to use by changing the value of **case_id**(the default value is 1)
-
-  - The output of the program will be in the **output_folder** in the working directory. The value of **output_folder** depends on **type_name** and **case_id**(you can check detail information in batch_run.sh)
-  
-  - You may change the value of **tunnel_name** based on the test case you want. **flow_info** for DRCR problem(you can also use **tunnel.csv**) and **large.csv/small.csv** for Srlg-DRCR problem.**The tunnel_name you select should in accordance with the type_name**
