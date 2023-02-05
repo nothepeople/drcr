@@ -101,15 +101,14 @@ class ReachabilityInfo {
  public:
     ReachabilityInfo(Graph* graph, const Flow& flow)
         : graph_(graph), flow_(flow),
-          visit_info_(graph->GetMaxNodeId() + 1,
-                      VisitInfo(flow.delay_ub - flow.delay_lb)) {}
+          visit_info_(graph->GetMaxNodeId() + 1) {}
 
-    const std::vector<VisitInfo>* GetReachabilityInfo();
+    const std::vector<QuickVisitInfo>* GetReachabilityInfo();
 
  private:
     Graph* graph_;
     Flow flow_;
-    std::vector<VisitInfo> visit_info_;
+    std::vector<QuickVisitInfo> visit_info_;
 };
 
 class KShortestPath {

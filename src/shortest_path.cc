@@ -260,7 +260,7 @@ const std::vector<VisitInfo>* BackwardDfs::GetReachabilityInfo() {
     return &visit_info_;
 }
 
-const std::vector<VisitInfo>* ReachabilityInfo::GetReachabilityInfo() {
+const std::vector<QuickVisitInfo>* ReachabilityInfo::GetReachabilityInfo() {
     std::vector<double> min_delay_from_src(
         graph_->GetMaxNodeId() + 1, kMaxValue);
     ComputeCostFromSrc(graph_, flow_.from, LinkDelay, &min_delay_from_src);
@@ -291,7 +291,7 @@ const std::vector<VisitInfo>* ReachabilityInfo::GetReachabilityInfo() {
             }
         }
     }
-    for (VisitInfo& info : visit_info_) {
+    for (QuickVisitInfo& info : visit_info_) {
         info.Process();
     }
     // 开启新的排序对于pulse搜索帮助似乎不大

@@ -376,7 +376,7 @@ double BiDirectionAp::FindOptPath(const Flow &flow, double cost_ub, LogInfo &ap_
     clock_t end_time;
     int bp_time = 0;
     start_time = clock();
-    const std::vector<VisitInfo> *visit_info =
+    const std::vector<QuickVisitInfo> *visit_info =
         reachability_info.GetReachabilityInfo();
     end_time = clock();
     std::cout << "Calculating reachability info takes: "
@@ -404,6 +404,7 @@ double BiDirectionAp::FindOptPath(const Flow &flow, double cost_ub, LogInfo &ap_
     while (!ap_stack.empty())
     {
         // ++num_iterations;
+        // std::cout << num_iterations << " \n";
         ++ap_info.iteration_num;
         Snapshot ap_snap = ap_stack.back();
         ap_stack.pop_back();
@@ -490,7 +491,7 @@ double BiDirectionAp::FindOptPath(const Flow &flow, double cost_ub, LogInfo &ap_
                 // prune
                 // CheckMinCost隐含了feasibility + optimality剪枝
                 if (visit_info->at(u).CheckMinCost(
-                        flow.delay_lb - new_delay,
+                        flow.delay_ub - new_delay,
                         best_cost_so_far - new_cost))
                 {
                     const std::vector<Link *> &egress_links =
@@ -1109,7 +1110,7 @@ double SrlgIncludeExcludeAp::FindOptPath(const Flow &flow, double cost_ub, LogIn
     graph_->SortLinks();
     // Start DFS search
     std::vector<Snapshot> ap_stack;
-    ap_stack.reserve(1000000);
+    ap_stack.reserve(2000000);
     // Create a fake link with delay = 0
     Link fake_link(-1, -1, flow.from, 0, 0, 0, 0);
     Snapshot snapshot;
@@ -1530,7 +1531,7 @@ double NewSrlgIncludeExcludeAp::FindOptPath(
                 if (flow.CheckDelayUb(min_delay_to_dst[u] + new_delay) &&
                     min_cost_to_dst[u] + new_cost < best_cost_so_far &&
                     visit_info_->at(u).CheckMinCost(
-                        flow.delay_lb - new_delay,
+                        flow.delay_ub - new_delay,
                         best_cost_so_far - new_cost))
                 {
                     const std::vector<Link *> &egress_links =

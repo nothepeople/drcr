@@ -742,3 +742,72 @@ const std::vector<Link *>& VisitInfo::GetEgressLinksBasedOnDelayLb(
     }
     return delay_to_egress_links_.at(idx);
 }
+
+bool QuickVisitInfo::FastCheckDominanceAndUpdate(double delay, double cost) {
+    if (!delay_cost_pairs_.empty()) {
+        if (delay_cost_pairs_.back().delay <= delay) {
+            return false;
+        }
+        delay_gap_min_ = std::min(delay_min_ - delay, delay_gap_min_);
+        delay_min_ = delay;
+    } else {
+        delay_gap_min_ = delay;
+        delay_min_ = delay;
+    }
+    delay_cost_pairs_.emplace_back(delay, cost);
+    return true;
+}
+
+void QuickVisitInfo::Process() {
+    if (delay_gap_min_ <= 0) {
+        return;
+    }
+    delta_ = delay_gap_min_ / kNumSlicesInRange;
+    auto it = delay_cost_pairs_.begin();
+    delay_max_ = it->delay;
+    min_cost_vector_.clear();
+    min_cost_vector_.reserve(100);
+    double delay = delay_max_;
+    // std::cout << delta_ << " and " << delay << "\n";
+    while (it != delay_cost_pairs_.end()) {
+        while (delay >= it->delay - 1e-6) {
+            min_cost_vector_.push_back(it->cost);
+            delay -= delta_;
+        }
+        ++it;
+    }
+}
+
+double QuickVisitInfo::GetMinCost(double delay_ub) const {
+    if (delay_ub >= delay_max_) {
+        return min_cost_vector_.front();
+    }
+    int idx = DelayToIndex(delay_ub);
+    if (idx >= min_cost_vector_.size()) {
+        return kMaxValue;
+    }
+    return min_cost_vector_.at(idx);
+}
+
+bool QuickVisitInfo::CheckMinCost(double delay_ub, double cost_ub) const {
+    if (min_cost_vector_.empty() || delay_ub < delay_min_) {
+        return false;
+    }
+    if (delay_ub >= delay_max_) {
+        return min_cost_vector_.front() < cost_ub;
+    }
+    int idx = DelayToIndex(delay_ub);
+    // if (idx < 0 || idx >= min_cost_vector_.size()) {
+    //     std::cout << idx << "\n";
+    // }
+    return min_cost_vector_.at(idx) < cost_ub;
+}
+
+void QuickVisitInfo::Print() const {
+    for (auto &delay_and_cost : delay_cost_pairs_)
+    {
+        std::cout << "(" << delay_and_cost.delay << ", "
+                << delay_and_cost.cost << ") ";
+    }
+    std::cout << "\n";
+}

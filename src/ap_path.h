@@ -145,7 +145,7 @@ public:
 
 private:
     ReachabilityInfo reachability_info_;
-    const std::vector<VisitInfo>* visit_info_;
+    const std::vector<QuickVisitInfo>* visit_info_;
 };
 
 #endif // AP_PATH_H_

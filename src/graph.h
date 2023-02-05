@@ -430,4 +430,38 @@ private:
     std::vector<Link *> empty_link_set_;
 };
 
+class QuickVisitInfo
+{
+public:
+    QuickVisitInfo() {
+        delay_cost_pairs_.reserve(100);
+    }
+    // Fast assumes that @cost is no smaller than the existing ones.
+    bool FastCheckDominanceAndUpdate(double delay, double cost);
+    void Process();
+    double GetMinCost(double delay_ub) const;
+    bool CheckMinCost(double delay_ub, double cost_ub) const;
+    void Print() const;
+
+
+private:
+    inline int DelayToIndex(double delay) const {
+        return std::floor((delay_max_ - delay) / delta_);
+    }
+
+    struct DelayCostPair {
+        DelayCostPair(double delay_in, double cost_in) : delay(delay_in), cost(cost_in) {}
+        double delay;
+        double cost;
+    };
+    std::vector<DelayCostPair> delay_cost_pairs_;
+    std::vector<double> min_cost_vector_;
+
+    double delay_max_;
+    double delay_min_;
+    double delay_gap_min_;
+    double delta_;
+    static const int kNumSlicesInRange = 10;
+};
+
 #endif // GRAPH_H_
