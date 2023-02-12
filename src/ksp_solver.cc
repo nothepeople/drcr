@@ -411,19 +411,22 @@ PathPair LagrangianKsp::FindPathPair(const Flow &flow) {
         if (weight > weight_ub) {
             std::cout << stored_path.size() << std::endl;
             Path path = stored_path.top();
-            std::cout << "Path cost: " << path.cost << " Path delay: " << path.delay << std::endl;
             stored_path.pop();
             // std::cout << "hello" << std::endl;
+            double delay = ComputeDelay(path.path_link);
+            Flow bp_flow = flow;
+            bp_flow.delay_lb = delay - flow.diff > flow.delay_lb ? delay - flow.diff : flow.delay_lb;
+            bp_flow.delay_ub = delay + flow.diff < flow.delay_ub ? delay + flow.diff : flow.delay_ub;
             bp_start_time = clock();
-            double bp_delay = ksp_bp.FindBpPath(path.path_link, flow, bp_info_.iteration_num);
+            double bp_delay = ksp_bp.FindBpPath(path.path_link, bp_flow, bp_info_.iteration_num);
             ++cnt;
             bp_end_time = clock();
             bp_info_.total_time += bp_end_time - bp_start_time;
             if (bp_delay < kMaxValue) {
                 result.ap_path.path_link = path.path_link;
                 result.bp_path.path_link = ksp_bp.GetBpPath();
-                ap_path_ = &result.ap_path;
-                bp_path_ = &result.bp_path;
+                result.ap_path.CompletePath();
+                result.bp_path.CompletePath();
                 end_time = clock();
                 std::cout << "Parse 1 finished!, Iteration time: " << cnt << std::endl; 
                 ap_info_.total_time = end_time - start_time - bp_info_.total_time;
