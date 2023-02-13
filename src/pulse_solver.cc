@@ -164,6 +164,7 @@ PathPair CosePulse::FindPathPair(const Flow &flow) {
         clock_t start_time_in;
         clock_t end_time_in;
         start_time_in = clock();
+        ++num_iterations;
         std::cout << "---------round: " << num_iterations << "-------\n";
         ++ap_info_.iteration_num;
         Instance instance = all_instances.front();
