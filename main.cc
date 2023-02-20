@@ -136,7 +136,7 @@ void test(std::string topo_path, std::string tunnel_path,int type_id)
                         std::cout << "Error!!!!!" << std::endl;
                     break;
                 }
-                case 7:{
+                case 6:{
                     BidirectionalPulse pulse;
                     pulse.SetupTopology(&graph);
                     Path path = pulse.FindPath(demand.GetFlow(i));
@@ -145,7 +145,7 @@ void test(std::string topo_path, std::string tunnel_path,int type_id)
                         std::cout << "Error!!!!!" << std::endl;
                     break;
                 }
-                case 8:{
+                case 7:{
                     EffSol pulse;
                     pulse.SetupTopology(&graph);
                     Path path = pulse.FindPath(demand.GetFlow(i));
@@ -161,8 +161,8 @@ void test(std::string topo_path, std::string tunnel_path,int type_id)
                                 <<"3 for CostKsp, "
                                 <<"4 for CostKspPulse, "
                                 <<"5 for LagrangianKsp, "
-                                <<"7 for BidirectionalPulse (Pulse+ with joint pruning), "
-                                <<"8 for Heuristic Solution Developed in 1985."
+                                <<"6 for BidirectionalPulse (Pulse+ with joint pruning), "
+                                <<"7 for Heuristic Solution Developed in 1985."
                                 <<std::endl;
                     flag =  false;
                 }
