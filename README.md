@@ -6,9 +6,9 @@
 
 - Result: Pulse > LagrangianKsp > CostKsp
 
-- Note: The following paper proposed a heuristic algorithm to solve the DRCR problem, but cannot offer optimality guarantee. In addition, the scalability of this heuristic algorithm is extremely poor. Many test cases with only 1000 nodes may run forever. Therefore, we do not include the results in the paper.
+- Note: The following paper proposed a heuristic algorithm to solve the DRCR problem, but cannot offer optimality guarantee. In addition, the scalability of this heuristic algorithm is extremely poor. We also implemented this approach. Many test cases with only 1000 nodes may run forever. Therefore, we do not include the results in the paper.
 
-"Celso C. Ribeiro and Michel Minoux. A Heuristic Approach to Hard Constrained Shortest Path Problems. Discrete Applied Mathematics. 1985."
+Celso C. Ribeiro and Michel Minoux. "A Heuristic Approach to Hard Constrained Shortest Path Problems." Discrete Applied Mathematics. 1985.
 
 # SrlgDisjoint DRCR
 
