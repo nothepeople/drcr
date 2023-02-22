@@ -198,22 +198,6 @@ void Graph::UpdateBpEgressLinks()
     // }
 }
 
-bool Graph::IsCousinLinkPair(const Link *a, const Link *b)
-{
-    if (a->source_id == b->source_id && a->ter_id == b->ter_id &&
-        a->cost == b->cost && a->delay == b->delay &&
-        a->srlg_num == b->srlg_num)
-    {
-        for (int i = 0; i < a->srlgs.size(); ++i)
-        {
-            if (a->srlgs[i] != b->srlgs[i])
-                return false;
-        }
-        return true;
-    }
-    return false;
-}
-
 Graph::Graph(const std::string &file_path)
 {
     srlg_group_.reserve(1000000);
@@ -289,7 +273,6 @@ Graph::Graph(const std::string &file_path)
     }
     node_to_egress_links_cost_ = node_to_egress_links_;
     node_to_ingress_links_cost_ = node_to_ingress_links_;
-    FindCousinLinks();
 }
 
 Graph::Graph(const std::vector<Link> &link)
@@ -364,39 +347,6 @@ Graph::Graph(const std::vector<Link> &link)
     }
     node_to_egress_links_cost_ = node_to_egress_links_;
     node_to_ingress_links_cost_ = node_to_ingress_links_;
-    FindCousinLinks();
-}
-
-void Graph::FindCousinLinks()
-{
-    std::vector<std::vector<Link *>> equivalent_groups;
-    std::unordered_map<Link *, int> link_to_idx_map;
-    equivalent_groups.reserve(links_.size());
-    for (Link &link : links_)
-    {
-        bool flag = false;
-        for (int idx = 0; idx < equivalent_groups.size(); ++idx)
-        {
-            std::vector<Link *> &equivalent_links = equivalent_groups[idx];
-            if (IsCousinLinkPair(&link, equivalent_links[0]))
-            {
-                flag = true;
-                equivalent_links.push_back(&link);
-                link_to_idx_map.emplace(&link, idx);
-                break;
-            }
-        }
-        if (!flag)
-        {
-            link_to_idx_map.emplace(&link, equivalent_groups.size());
-            equivalent_groups.push_back({&link});
-        }
-    }
-    for (Link &link : links_)
-    {
-        int idx = link_to_idx_map.at(&link);
-        link.cousins = equivalent_groups.at(idx);
-    }
 }
 
 void Graph::SortLinks()

@@ -1,3 +1,7 @@
+# INTRODUCTION
+
+This is the code for our paper titled "Efficient Routing Algorithm Design for Large DetNet". Our code is highly optimized, and has been adopted by our sponsor company.
+
 # DRCR
 
 - We implement Cost-KSP, Lagrangian-KSP, Delay-KSP, Pulse+, etc., to solve the delay-range constrained routing (DRCR) problem.
@@ -21,8 +25,6 @@ Celso C. Ribeiro and Michel Minoux. "A Heuristic Approach to Hard Constrained Sh
 - Result: CoSE-Pulse+ > LagrangianKsp > CostKSP/DelayKSP
 
 # Try Our Code
-
-We hope the reviewers to try our code. Our code is highly optimized, and has been adopted by our sponsor company.
 
 ```c++
 make main

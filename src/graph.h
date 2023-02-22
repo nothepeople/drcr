@@ -50,7 +50,6 @@ struct Link
     double delay;
     int srlg_num;
     std::vector<int> srlgs;
-    std::vector<Link *> cousins; // 记录所有与该link信息相同的link（包含本身）。
     double weight;
     LinkStatus status;
 };
@@ -228,9 +227,6 @@ public:
     }
 
 private:
-    void FindCousinLinks();
-    bool IsCousinLinkPair(const Link *a, const Link *b);
-
     std::vector<Link> links_;
     std::unordered_set<NodeId> nodes_;
     std::vector<std::vector<Link *>> node_to_egress_links_;
