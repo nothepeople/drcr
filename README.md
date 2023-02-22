@@ -8,7 +8,7 @@ This is the code for our paper titled "Efficient Routing Algorithm Design for La
 
 - All the test cases are in the "/data/DelayRange" directory.
 
-- Result: Pulse > LagrangianKsp > CostKsp
+- Result: Pulse > LagrangianKsp > CostKsp/DelayKSP
 
 - Note: The following paper proposed a heuristic algorithm to solve the DRCR problem, but cannot offer optimality guarantee. (For example, this algorithm fails to find a solution to the third test case in data/DelayRange/Zoo/Zoo/VtlWavenet2008/tunnel.csv.) In addition, the scalability of this heuristic algorithm is extremely poor. Many test cases with only 1000 nodes may run forever. Therefore, we do not include the results in the paper.
 
@@ -42,7 +42,7 @@ main data/SrlgDisjoint/SrlgDisjoint_star/node1000/k1/Case0/topo.csv data/SrlgDis
 to test Cose-Pulse+ for all the Srlg-disjoint DRCR cases in the directory data/SrlgDisjoint/SrlgDisjoint_star/node1000/k1/Case0/. (0 represents all the test cases.)
 
 
-- In main.cc, you can easily change the method you are going to apply to solve the test instance by change method_id.
+In main.cc, you can try different methods using different method_ids.
 
 - As for DRCR problem, you can choose 1 for Pulse+, 2 for DelayKsp, 3 for CostKsp, 4 for CostKspPulse, 5 for LagtangianKsp, 6 for BidirectionalPulse, 7 for a heuristic algorithm developed in 1985.
 
