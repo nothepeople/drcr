@@ -20,6 +20,10 @@ void test(std::string topo_path, std::string tunnel_path, int type_id, int flow_
     Demand demand(tunnel_path);
     // std::cout << "Number of Flows: " << demand.NumFlows() << "\n";
     // std::cout << demand.NumFlows() << std::endl;
+    if (flow_id < -1 || flow_id >= demand.NumFlows()) {
+        std::cout << "Invalid flow id\n";
+        return;
+    }
     std::vector<int> flow_ids;
     if (flow_id == -1) {
         flow_ids.reserve(demand.NumFlows());

@@ -32,9 +32,9 @@ Path DelayKsp::FindPath(const Flow &flow)
     // std::cout << "Total number of iterations: " << num_iterations << "\n";
     end_time = clock();
     ap_info_.total_time = end_time - start_time;
-    // std::cout << "Delay KSP takes: "
-    //           << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
-    //           << "(ms).\n";
+    std::cout << "Delay KSP takes: "
+              << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+              << "(ms).\n";
     if (min_cost < kMaxValue)
     {
         result.CompletePath();
@@ -87,9 +87,9 @@ PathPair DelayKsp::FindPathPair(const Flow &flow)
     // std::cout << "Total number of AP iterations: " << num_iterations << "\n";
     end_time = clock();
     ap_info_.total_time += end_time - start_time - bp_info_.total_time;
-    // std::cout << "Delay KSP takes: "
-    //           << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
-    //           << "(ms).\n";
+    std::cout << "Delay KSP takes: "
+              << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+              << "(ms).\n";
     // std::cout << "BP search takes: " << bp_time_ms << "(ms).\n";
     if (min_cost < kMaxValue)
     {
@@ -125,9 +125,9 @@ Path CostKsp::FindPath(const Flow &flow)
     // std::cout << "Total number of iterations: " << num_iterations << "\n";
     end_time = clock();
     ap_info_.total_time = end_time - start_time;
-    // std::cout << "Original Cost KSP takes: "
-    //           << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
-    //           << "(ms).\n";
+    std::cout << "CostKSP takes: "
+              << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+              << "(ms).\n";
     ap_path_ = &result;
     return result;
 }
@@ -178,9 +178,9 @@ PathPair CostKsp::FindPathPair(const Flow &flow)
     end_time = clock();
     // std::cout << "Total number of AP iterations: " << num_iterations << "\n";
     // std::cout << "BP search takes: " << bp_time_ms << "(ms).\n";
-    // std::cout << "KSP (including BP search) takes: "
-    //           << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
-    //           << "(ms).\n";
+    std::cout << "CostKSP (including BP search) takes: "
+              << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+              << "(ms).\n";
     ap_info_.total_time = end_time - start_time - bp_info_.total_time;
     return result;
 }
@@ -212,9 +212,9 @@ Path CostKspPulse::FindPath(const Flow &flow)
     // std::cout << "Total number of iterations: " << num_iterations << "\n";
     end_time = clock();
     ap_info_.total_time = end_time - start_time;
-    // std::cout << "Cost KSP takes: "
-    //           << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
-    //           << "(ms).\n";
+    std::cout << "CostKSPPulse takes: "
+              << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+              << "(ms).\n";
     ap_path_ = &result;
     return result;
 }
@@ -294,9 +294,9 @@ PathPair CostKspPulse::FindPathPair(const Flow &flow)
     // std::cout << "Total number of AP iterations: " << num_iterations << "\n";
     end_time = clock();
     // std::cout << "BP search takes: " << bp_time_ms << "(ms).\n";
-    // std::cout << "KSP (including BP search) takes: "
-    //           << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
-    //           << "(ms).\n";
+    std::cout << "CostKSPPulse (including BP search) takes: "
+              << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+              << "(ms).\n";
     ap_info_.total_time = end_time - start_time - bp_info_.total_time;
     return result;
 }

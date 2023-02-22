@@ -42,9 +42,9 @@ Path Pulse::FindPath(const Flow &flow) {
     }
     end_time = clock();
     ap_info_.total_time += end_time - start_time;
-    // std::cout << "Pulse takes: "
-    //           << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
-    //           << "(ms).\n";
+    std::cout << "Pulse takes: "
+              << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+              << "(ms).\n";
     return result;
 }
 
