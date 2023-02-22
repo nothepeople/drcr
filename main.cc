@@ -10,69 +10,83 @@
 #include "src/shortest_path.h"
 #include "src/pulse_solver.h"
 
-void test(std::string topo_path, std::string tunnel_path,int type_id)
+void test(std::string topo_path, std::string tunnel_path, int type_id, int flow_id = -1)
 {
-    // std::cout << 1 << std::endl;
-    // std::cout << part_path << std::endl;
-    // std::string file_path = "/mnt/d/Users/Documents/GitHub/routing/" + part_path;
-    // std::string file_path = topo_path;
     Graph graph(topo_path);
     // std::cout << "\n--------------------------\n";
     // std::cout << topo_path << std::endl;
     // std::cout << "Number of Nodes: " << graph.NodeSize()
             //   << "\nNumber of links: " << graph.LinkSize() << std::endl;
     Demand demand(tunnel_path);
-    bool flag = true;
     // std::cout << "Number of Flows: " << demand.NumFlows() << "\n";
     // std::cout << demand.NumFlows() << std::endl;
-    for (int i = 0; i < demand.NumFlows() && flag; ++i)
+    std::vector<int> flow_ids;
+    if (flow_id == -1) {
+        flow_ids.reserve(demand.NumFlows());
+        for (int i = 0; i < demand.NumFlows(); ++i) {
+            flow_ids.push_back(i);
+        }
+    } else {
+        flow_ids.push_back(flow_id);
+    }
+
+    for (int i : flow_ids)
     {
-        std::fstream Outfile("cost_ksp", std::ofstream::app);
-        Outfile << demand.GetFlow(i).id << ",";
-        demand.GetFlow(i).PrintToCsv();
         if (demand.GetFlow(i).is_diff)
         {
             switch(type_id){
                 case 1:{
-                    Pulse pulse;
-                    pulse.SetupTopology(&graph);
-                    PathPair path = pulse.FindPathPair(demand.GetFlow(i));
-                    pulse.PrintToCsv();
+                    Pulse solver;
+                    solver.SetupTopology(&graph);
+                    PathPair path = solver.FindPathPair(demand.GetFlow(i));
+                    path.Print();
+                    demand.GetFlow(i).PrintToCsv();
+                    solver.PrintToCsv();
                     break;
                 }
                 case 2:{
-                    DelayKsp pulse;
-                    pulse.SetupTopology(&graph);
-                    PathPair path = pulse.FindPathPair(demand.GetFlow(i));
-                    pulse.PrintToCsv();
+                    DelayKsp solver;
+                    solver.SetupTopology(&graph);
+                    PathPair path = solver.FindPathPair(demand.GetFlow(i));
+                    path.Print();
+                    demand.GetFlow(i).PrintToCsv();
+                    solver.PrintToCsv();
                     break;
                 }
                 case 3:{
-                    CostKsp pulse;
-                    pulse.SetupTopology(&graph);
-                    PathPair path = pulse.FindPathPair(demand.GetFlow(i));
-                    pulse.PrintToCsv();
+                    CostKsp solver;
+                    solver.SetupTopology(&graph);
+                    PathPair path = solver.FindPathPair(demand.GetFlow(i));
+                    path.Print();
+                    demand.GetFlow(i).PrintToCsv();
+                    solver.PrintToCsv();
                     break;
                 }
                 case 4:{
-                    CostKspPulse pulse;
-                    pulse.SetupTopology(&graph);
-                    PathPair path = pulse.FindPathPair(demand.GetFlow(i));
-                    pulse.PrintToCsv();
+                    CostKspPulse solver;
+                    solver.SetupTopology(&graph);
+                    PathPair path = solver.FindPathPair(demand.GetFlow(i));
+                    path.Print();
+                    demand.GetFlow(i).PrintToCsv();
+                    solver.PrintToCsv();
                     break;
                 }
                 case 5:{
-                    LagrangianKsp pulse;
-                    pulse.SetupTopology(&graph);
-                    PathPair path = pulse.FindPathPair(demand.GetFlow(i));
-                    pulse.PrintToCsv();
+                    LagrangianKsp solver;
+                    solver.SetupTopology(&graph);
+                    PathPair path = solver.FindPathPair(demand.GetFlow(i));
+                    path.Print();
+                    demand.GetFlow(i).PrintToCsv();
+                    solver.PrintToCsv();
                     break;
                 }
                 case 6:{
-                    CosePulse pulse;
-                    pulse.SetupTopology(&graph);
-                    PathPair path = pulse.FindPathPair(demand.GetFlow(i));
-                    pulse.PrintToCsv();
+                    CosePulse solver;
+                    solver.SetupTopology(&graph);
+                    PathPair path = solver.FindPathPair(demand.GetFlow(i));
+                    path.Print();
+                    demand.GetFlow(i).PrintToCsv();
+                    solver.PrintToCsv();
                     break;
                 }
                 default:{
@@ -84,7 +98,7 @@ void test(std::string topo_path, std::string tunnel_path,int type_id)
                                 <<"5 for LagrangianKsp, "
                                 <<"6 for CosePulse+."
                                 <<std::endl;
-                    flag = false;
+                    return;
                 }
             }
         }
@@ -92,64 +106,78 @@ void test(std::string topo_path, std::string tunnel_path,int type_id)
         {
             switch(type_id){
                 case 1:{
-                    Pulse pulse;
-                    pulse.SetupTopology(&graph);
-                    Path path = pulse.FindPath(demand.GetFlow(i));
-                    pulse.PrintToCsv();
+                    Pulse solver;
+                    solver.SetupTopology(&graph);
+                    Path path = solver.FindPath(demand.GetFlow(i));
+                    path.Print();
+                    demand.GetFlow(i).PrintToCsv();
+                    solver.PrintToCsv();
                     if (path.cost != demand.GetFlow(i).opt_cost)
                         std::cout << "Error!!!!!" << std::endl;
                     break;
                 }
                 case 2:{
-                    DelayKsp pulse;
-                    pulse.SetupTopology(&graph);
-                    Path path = pulse.FindPath(demand.GetFlow(i));
-                    pulse.PrintToCsv();
+                    DelayKsp solver;
+                    solver.SetupTopology(&graph);
+                    Path path = solver.FindPath(demand.GetFlow(i));
+                    path.Print();
+                    demand.GetFlow(i).PrintToCsv();
+                    solver.PrintToCsv();
                     if (path.cost != demand.GetFlow(i).opt_cost)
                         std::cout << "Error!!!!!" << std::endl;
                     break;
                 }
                 case 3:{
-                    CostKsp pulse;
-                    pulse.SetupTopology(&graph);
-                    Path path = pulse.FindPath(demand.GetFlow(i));
-                    pulse.PrintToCsv();
+                    CostKsp solver;
+                    solver.SetupTopology(&graph);
+                    Path path = solver.FindPath(demand.GetFlow(i));
+                    path.Print();
+                    demand.GetFlow(i).PrintToCsv();
+                    solver.PrintToCsv();
                     if (path.cost != demand.GetFlow(i).opt_cost)
                         std::cout << "Error!!!!!" << std::endl;
                     break;
                 }
                 case 4:{
-                    CostKspPulse pulse;
-                    pulse.SetupTopology(&graph);
-                    Path path = pulse.FindPath(demand.GetFlow(i));
-                    pulse.PrintToCsv();
+                    CostKspPulse solver;
+                    solver.SetupTopology(&graph);
+                    Path path = solver.FindPath(demand.GetFlow(i));
+                    path.Print();
+                    demand.GetFlow(i).PrintToCsv();
+                    solver.PrintToCsv();
                     if (path.cost != demand.GetFlow(i).opt_cost)
                         std::cout << "Error!!!!!" << std::endl;
                     break;
                 }
                 case 5:{
-                    LagrangianKsp pulse;
-                    pulse.SetupTopology(&graph);
-                    Path path = pulse.FindPath(demand.GetFlow(i));
-                    pulse.PrintToCsv();
+                    LagrangianKsp solver;
+                    solver.SetupTopology(&graph);
+                    Path path = solver.FindPath(demand.GetFlow(i));
+                    path.Print();
+                    demand.GetFlow(i).PrintToCsv();
+                    solver.PrintToCsv();
                     if (path.cost != demand.GetFlow(i).opt_cost)
                         std::cout << "Error!!!!!" << std::endl;
                     break;
                 }
                 case 6:{
-                    BidirectionalPulse pulse;
-                    pulse.SetupTopology(&graph);
-                    Path path = pulse.FindPath(demand.GetFlow(i));
-                    pulse.PrintToCsv();
+                    BidirectionalPulse solver;
+                    solver.SetupTopology(&graph);
+                    Path path = solver.FindPath(demand.GetFlow(i));
+                    path.Print();
+                    demand.GetFlow(i).PrintToCsv();
+                    solver.PrintToCsv();
                     if (path.cost != demand.GetFlow(i).opt_cost)
                         std::cout << "Error!!!!!" << std::endl;
                     break;
                 }
                 case 7:{
-                    EffSol pulse;
-                    pulse.SetupTopology(&graph);
-                    Path path = pulse.FindPath(demand.GetFlow(i));
-                    pulse.PrintToCsv();
+                    EffSol solver;
+                    solver.SetupTopology(&graph);
+                    Path path = solver.FindPath(demand.GetFlow(i));
+                    path.Print();
+                    demand.GetFlow(i).PrintToCsv();
+                    solver.PrintToCsv();
                     if (path.cost != demand.GetFlow(i).opt_cost)
                         std::cout << "Error!!!!!" << std::endl;
                     break;
@@ -164,7 +192,7 @@ void test(std::string topo_path, std::string tunnel_path,int type_id)
                                 <<"6 for BidirectionalPulse (Pulse+ with joint pruning), "
                                 <<"7 for Heuristic Solution Developed in 1985."
                                 <<std::endl;
-                    flag =  false;
+                    return;
                 }
             }
         }
@@ -177,8 +205,9 @@ int main(int argc, char *argv[])
     int cnt = 0;
     // std::cout << "hello" << std::endl;
     int type_id = atoi(argv[3]);
+    int flow_id = atoi(argv[4]);
     clock_t start_time = clock();
-    test(argv[1], argv[2],type_id);
+    test(argv[1], argv[2],type_id, flow_id);
     clock_t end_time = clock();
     return 0;
 }

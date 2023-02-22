@@ -56,18 +56,18 @@ PathPair Pulse::FindPathPair(const Flow &flow) {
     a_star_delay.InitWithDst(flow.to);
     AStar a_star_cost(graph_, LinkCost);
     a_star_cost.InitWithDst(flow.to);
-    std::cout << "---Stage 1 search---\n";
+    // std::cout << "---Stage 1 search---\n";
     GenericAp ap;
     FastDisjointBp fast_bp(graph_);
     ap.Init(graph_, &fast_bp, a_star_cost.GetCostVector(),
             a_star_delay.GetCostVector());
     double min_cost_stage1 = ap.FindCloseToOptPath(flow, kMaxValue, ap_info_, bp_info_);
-    std::cout << "cost in stage 1: " << min_cost_stage1 << "\n";
+    // std::cout << "cost in stage 1: " << min_cost_stage1 << "\n";
     end_time = clock();
-    std::cout << "Pulse stage-1 takes: "
-              << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
-              << "(ms).\n";
-    std::cout << "---Stage 2 search---\n";
+    // std::cout << "Pulse stage-1 takes: "
+    //           << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+    //           << "(ms).\n";
+    // std::cout << "---Stage 2 search---\n";
     DisjointBp bp(graph_);
     ap.Init(graph_, &bp, a_star_cost.GetCostVector(),
             a_star_delay.GetCostVector());
@@ -122,7 +122,7 @@ PathPair SrlgDisjointPulse::FindPathPair(const Flow &flow) {
     srlg_ap.Init(graph_, &bp, a_star_cost.GetCostVector(),
                  a_star_delay.GetCostVector());
     double min_cost_stage1 = srlg_ap.FindCloseToOptPath(flow, kMaxValue, ap_info_, bp_info_);
-    std::cout << "cost in stage 1: " << min_cost_stage1 << "\n";
+    // std::cout << "cost in stage 1: " << min_cost_stage1 << "\n";
     end_time = clock();
     std::cout << "SrlgDisjointPulse stage-1 takes: "
               << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
@@ -177,15 +177,15 @@ PathPair CosePulse::FindPathPair(const Flow &flow) {
                                   conflict_sets)) {
             continue;
         }
-        std::cout << "included srlgs: ";
-        PrintSrlgs(instance.included_srlgs);
-        std::cout << "excluded srlgs: ";
-        PrintSrlgs(instance.excluded_srlgs);
+        // std::cout << "included srlgs: ";
+        // PrintSrlgs(instance.included_srlgs);
+        // std::cout << "excluded srlgs: ";
+        // PrintSrlgs(instance.excluded_srlgs);
         clock_t start_time = clock();
         double ap_cost = srlg_inc_exc_ap.FindOptPath(flow, best_cost_so_far, ap_info_, bp_info_);
         clock_t end_time = clock();
         ap_info_.total_time = end_time - start_time;
-        std::cout << "Ap cost: " << ap_cost << "\n";
+        // std::cout << "Ap cost: " << ap_cost << "\n";
         end_time_in = clock();
         std::cout << "Iteration " << num_iterations << " ap path takes: "
                   << double(end_time_in - start_time_in) / CLOCKS_PER_SEC * 1000
@@ -251,16 +251,16 @@ PathPair CosePulse::FindPathPair(const Flow &flow) {
         clock_t end_bp_time = clock();
         bp_info_.total_time = end_bp_time - start_bp_time;
         end_time_in = clock();
-        std::cout << "Iteration " << num_iterations << " takes: "
-                  << double(end_time_in - start_time_in) / CLOCKS_PER_SEC * 1000
-                  << "(ms).\n";
+        // std::cout << "Iteration " << num_iterations << " takes: "
+        //           << double(end_time_in - start_time_in) / CLOCKS_PER_SEC * 1000
+        //           << "(ms).\n";
     }
     if (best_cost_so_far < kMaxValue) {
         result.ap_path.CompletePath();
         result.bp_path.CompletePath();
     }
     end_time = clock();
-    std::cout << "Total number of iterations: " << num_iterations << "\n";
+    // std::cout << "Total number of iterations: " << num_iterations << "\n";
     std::cout << "In total, CosePulse takes: "
               << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
               << "(ms).\n";

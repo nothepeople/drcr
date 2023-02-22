@@ -5,7 +5,6 @@
 #include "src/ap_path.h"
 #include "src/bp_path.h"
 #include "src/graph.h"
-#include "src/ksp.h"
 #include "src/ksp_solver.h"
 #include "src/shortest_path.h"
 #include "src/pulse_solver.h"
