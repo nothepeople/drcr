@@ -187,9 +187,9 @@ PathPair CosePulse::FindPathPair(const Flow &flow) {
         ap_info_.total_time = end_time - start_time;
         // std::cout << "Ap cost: " << ap_cost << "\n";
         end_time_in = clock();
-        std::cout << "Iteration " << num_iterations << " ap path takes: "
-                  << double(end_time_in - start_time_in) / CLOCKS_PER_SEC * 1000
-                  << "(ms).\n";
+        // std::cout << "Iteration " << num_iterations << " ap path takes: "
+        //           << double(end_time_in - start_time_in) / CLOCKS_PER_SEC * 1000
+        //           << "(ms).\n";
         if (ap_cost >= best_cost_so_far) {
             continue;
         }
@@ -208,14 +208,14 @@ PathPair CosePulse::FindPathPair(const Flow &flow) {
             ap_delay + flow.diff : flow.delay_ub;
         clock_t start_bp_time = clock();
         double bp_delay = bp.FindBpPath(ap_path, bp_flow, bp_info_.iteration_num);
-        std::cout << "bp delay: " << bp_delay << "\n";
+        // std::cout << "bp delay: " << bp_delay << "\n";
         if (bp_delay < kMaxValue) {
-            std::cout << "bp path found: " << bp_delay << "\n";
+            // std::cout << "bp path found: " << bp_delay << "\n";
             best_cost_so_far = ap_cost;
             result.ap_path.path_link = ap_path;
             result.bp_path.path_link = bp.GetBpPath();
         } else {
-            std::cout << "bp path not found!!!!";
+            // std::cout << "bp path not found!!!!";
             if (srlg_bp.FindBpPath(ap_path, flow, bp_info_.iteration_num) == kMaxValue) {
                 conflict_sets.push_back(srlg_bp.GetConflictSet());
                 ConflictSet& conflict_set = conflict_sets.back();

@@ -1,2 +1,2 @@
-demandID,SourceID,DestinationID,MinDelay,MaxDelay,Bandwidth,Ishotstandby,DelayDifference,DisjointType,WorkOpt,MinCostDelay,MinDelayDelay
-0,4354,3726,202.5,0,0,1,1,2,202,-1,133,81,17,224430,7,21506,
+demandID,SourceID,DestinationID,MinDelay,MaxDelay,Bandwidth,Ishotstandby,DelayDifference,DisjointType,WorkOpt,Rangetype,MinCostDelay,MinDelayDelay,ApIt,ApTime,BpIt,BpTime
+0,4354,3726,0,202.5,0,1,1,2,202,-1,133,81,17,224430,7,21506
