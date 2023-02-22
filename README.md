@@ -10,7 +10,7 @@ This is the code for our paper titled "Efficient Routing Algorithm Design for La
 
 - Result: Pulse > LagrangianKsp > CostKsp
 
-- Note: The following paper proposed a heuristic algorithm to solve the DRCR problem, but cannot offer optimality guarantee. In addition, the scalability of this heuristic algorithm is extremely poor. We also implemented this approach. Many test cases with only 1000 nodes may run forever. Therefore, we do not include the results in the paper.
+- Note: The following paper proposed a heuristic algorithm to solve the DRCR problem, but cannot offer optimality guarantee. (For example, this algorithm fails to find a solution to the third test case in data/DelayRange/Zoo/Zoo/VtlWavenet2008/tunnel.csv.) In addition, the scalability of this heuristic algorithm is extremely poor. Many test cases with only 1000 nodes may run forever. Therefore, we do not include the results in the paper.
 
 Celso C. Ribeiro and Michel Minoux. "A Heuristic Approach to Hard Constrained Shortest Path Problems." Discrete Applied Mathematics. 1985.
 
@@ -28,18 +28,18 @@ Celso C. Ribeiro and Michel Minoux. "A Heuristic Approach to Hard Constrained Sh
 
 ```c++
 make main
-./main ./"TopoFilePath" ./"TunnelFilePath" "method_id"
+./main ./"TopoFilePath" ./"TunnelFilePath" "method_id" "flow_id"
 ```
 
 For example, you could run 
 ```c++
-main data/DelayRange/node1000/k1/Case0/topo.csv data/DelayRange/node1000/k1/Case0/tunnel.csv 1
+main data/DelayRange/node1000/k1/Case0/topo.csv data/DelayRange/node1000/k1/Case0/tunnel.csv 1 1
 ```
-to test Pulse+ for DRCR cases in the directory data/DelayRange/node1000/k1/Case0/. You could run
+to test Pulse+ for the first DRCR cases in the directory data/DelayRange/node1000/k1/Case0/. You could run
 ```c++
-main data/SrlgDisjoint/SrlgDisjoint_star/node1000/k1/Case0/topo.csv data/SrlgDisjoint/SrlgDisjoint_star/node1000/k1/Case0/tunnel_trap.csv 6
+main data/SrlgDisjoint/SrlgDisjoint_star/node1000/k1/Case0/topo.csv data/SrlgDisjoint/SrlgDisjoint_star/node1000/k1/Case0/tunnel_trap.csv 6 0
 ```
-to test Cose-Pulse+ for Srlg-disjoint DRCR cases in the directory data/SrlgDisjoint/SrlgDisjoint_star/node1000/k1/Case0/.
+to test Cose-Pulse+ for all the Srlg-disjoint DRCR cases in the directory data/SrlgDisjoint/SrlgDisjoint_star/node1000/k1/Case0/. (0 represents all the test cases.)
 
 
 - In main.cc, you can easily change the method you are going to apply to solve the test instance by change method_id.

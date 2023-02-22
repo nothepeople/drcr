@@ -10,7 +10,7 @@
 #include "src/shortest_path.h"
 #include "src/pulse_solver.h"
 
-void test(std::string topo_path, std::string tunnel_path, int type_id, int flow_id = -1)
+void test(std::string topo_path, std::string tunnel_path, int type_id, int flow_id = 0)
 {
     Graph graph(topo_path);
     // std::cout << "\n--------------------------\n";
@@ -20,18 +20,18 @@ void test(std::string topo_path, std::string tunnel_path, int type_id, int flow_
     Demand demand(tunnel_path);
     // std::cout << "Number of Flows: " << demand.NumFlows() << "\n";
     // std::cout << demand.NumFlows() << std::endl;
-    if (flow_id < -1 || flow_id >= demand.NumFlows()) {
+    if (flow_id < 0 || flow_id > demand.NumFlows()) {
         std::cout << "Invalid flow id\n";
         return;
     }
     std::vector<int> flow_ids;
-    if (flow_id == -1) {
+    if (flow_id == 0) {
         flow_ids.reserve(demand.NumFlows());
         for (int i = 0; i < demand.NumFlows(); ++i) {
             flow_ids.push_back(i);
         }
     } else {
-        flow_ids.push_back(flow_id);
+        flow_ids.push_back(flow_id - 1);
     }
 
     for (int i : flow_ids)

@@ -4,7 +4,5 @@ test: $(ALL_SRC) $(ALL_HEADER) test.cc
 	g++ -O3 $(ALL_SRC) test.cc --std=c++11 -o test
 main: $(ALL_SRC) $(ALL_HEADER) main.cc
 	g++ -O3 $(ALL_SRC) main.cc --std=c++11 -o main
-split: split_tunnel.cc
-	g++ -O3 split_tunnel.cc --std=c++11 -o split
 clean:
-	rm test main split
+	rm test main
