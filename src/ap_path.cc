@@ -529,9 +529,9 @@ double BiDirectionAp::FindOptPath(const Flow &flow, double cost_ub, LogInfo &ap_
         }
     }
     end_time = clock();
-    // std::cout << "GenericAp takes: "
-    //           << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
-    //           << "(ms).\n";
+    std::cout << "BidirectionalPulse takes: "
+              << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+              << "(ms).\n";
     bp_info.total_time += bp_time;
     ap_info.total_time += end_time - start_time - bp_time;
     return best_cost_so_far;

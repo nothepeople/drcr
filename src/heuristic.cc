@@ -733,7 +733,11 @@ Path EffSol::FindPath(const Flow &flow)
             }
         }
     }
-    ap_info_.total_time += (clock()-start_time);
+    clock_t end_time = clock();
+    ap_info_.total_time += (end_time-start_time);
+    std::cout << "Heuristic 1985 takes: "
+              << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+              << "(ms).\n";
     //std::cout<<"done"<<std::endl;
     if(opt_cost < kMaxDelay)
     {

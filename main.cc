@@ -205,9 +205,6 @@ void test(std::string topo_path, std::string tunnel_path, int type_id, int flow_
 
 int main(int argc, char *argv[])
 {
-    double optimality = 0;
-    int cnt = 0;
-    // std::cout << "hello" << std::endl;
     int type_id = atoi(argv[3]);
     int flow_id = atoi(argv[4]);
     clock_t start_time = clock();

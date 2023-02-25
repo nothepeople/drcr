@@ -87,9 +87,9 @@ PathPair Pulse::FindPathPair(const Flow &flow) {
 }
 
 Path BidirectionalPulse::FindPath(const Flow &flow) {
-    clock_t start_time;
-    clock_t end_time;
-    start_time = clock();
+    // clock_t start_time;
+    // clock_t end_time;
+    // start_time = clock();
     // AStar a_star_delay(graph_, LinkDelay);
     // a_star_delay.InitWithDst(flow.to);
     BiDirectionAp ap;
@@ -100,10 +100,10 @@ Path BidirectionalPulse::FindPath(const Flow &flow) {
         result.path_link = ap.GetApPath();
         result.CompletePath();
     }
-    end_time = clock();
-    std::cout << "BidirectionalPulse takes: "
-              << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
-              << "(ms).\n";
+    // end_time = clock();
+    // std::cout << "BidirectionalPulse takes: "
+    //           << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+    //           << "(ms).\n";
     return result;
 }
 
