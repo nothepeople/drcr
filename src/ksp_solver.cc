@@ -409,7 +409,7 @@ PathPair LagrangianKsp::FindPathPair(const Flow &flow) {
         if (delay == kMaxValue)
             break;
         if (weight > weight_ub) {
-            std::cout << stored_path.size() << std::endl;
+            // std::cout << stored_path.size() << std::endl;
             Path path = stored_path.top();
             stored_path.pop();
             // std::cout << "hello" << std::endl;
@@ -428,8 +428,11 @@ PathPair LagrangianKsp::FindPathPair(const Flow &flow) {
                 result.ap_path.CompletePath();
                 result.bp_path.CompletePath();
                 end_time = clock();
-                std::cout << "Parse 1 finished!, Iteration time: " << cnt << std::endl; 
+                // std::cout << "Parse 1 finished!, Iteration time: " << cnt << std::endl; 
                 ap_info_.total_time = end_time - start_time - bp_info_.total_time;
+                std::cout << "LagrangianKsp with u=" << u << " takes: "
+                    << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+                    << "(ms).\n";
                 return result;
             }
 
@@ -453,7 +456,7 @@ PathPair LagrangianKsp::FindPathPair(const Flow &flow) {
         ++ap_info_.iteration_num;
         weight = ksp.FindNextPath();
     }
-    std::cout << "Parse2: " << std::endl;
+    // std::cout << "Parse2: " << std::endl;
     bp_start_time = clock();
     // std::cout << "\nsize: " << stored_path.size() << std::endl;
     while (!stored_path.empty()) {
@@ -471,6 +474,9 @@ PathPair LagrangianKsp::FindPathPair(const Flow &flow) {
             end_time = clock();
             bp_end_time = clock();
             ap_info_.total_time = end_time - start_time - bp_info_.total_time;
+            std::cout << "LagrangianKsp with u=" << u << " takes: "
+                    << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
+                    << "(ms).\n";
             return result;
         }
     }

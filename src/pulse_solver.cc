@@ -154,8 +154,8 @@ PathPair CosePulse::FindPathPair(const Flow &flow) {
     std::vector<ConflictSet> conflict_sets;
     conflict_sets.reserve(20);
     int num_iterations = 0;
-    // SrlgIncludeExcludeAp srlg_inc_exc_ap(graph_);
-    NewSrlgIncludeExcludeAp srlg_inc_exc_ap(graph_, flow);
+    SrlgIncludeExcludeAp srlg_inc_exc_ap(graph_);
+    // NewSrlgIncludeExcludeAp srlg_inc_exc_ap(graph_, flow);
     DisjointBp bp(graph_);
     AStar a_star_delay(graph_, LinkDelay);
     a_star_delay.InitWithDst(flow.to);
