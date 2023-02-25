@@ -161,9 +161,9 @@ PathPair CosePulse::FindPathPair(const Flow &flow) {
     a_star_delay.InitWithDst(flow.to);
     SrlgDisjointBp srlg_bp(graph_, a_star_delay.GetCostVector());
     while (!all_instances.empty()) {
-        clock_t start_time_in;
-        clock_t end_time_in;
-        start_time_in = clock();
+        // clock_t start_time_in;
+        // clock_t end_time_in;
+        // start_time_in = clock();
         ++num_iterations;
         std::cout << "---------round: " << num_iterations << "-------\n";
         ++ap_info_.iteration_num;
@@ -181,12 +181,9 @@ PathPair CosePulse::FindPathPair(const Flow &flow) {
         // PrintSrlgs(instance.included_srlgs);
         // std::cout << "excluded srlgs: ";
         // PrintSrlgs(instance.excluded_srlgs);
-        clock_t start_time = clock();
         double ap_cost = srlg_inc_exc_ap.FindOptPath(flow, best_cost_so_far, ap_info_, bp_info_);
-        clock_t end_time = clock();
-        ap_info_.total_time = end_time - start_time;
         // std::cout << "Ap cost: " << ap_cost << "\n";
-        end_time_in = clock();
+        // end_time_in = clock();
         // std::cout << "Iteration " << num_iterations << " ap path takes: "
         //           << double(end_time_in - start_time_in) / CLOCKS_PER_SEC * 1000
         //           << "(ms).\n";
@@ -249,8 +246,8 @@ PathPair CosePulse::FindPathPair(const Flow &flow) {
             }
         }
         clock_t end_bp_time = clock();
-        bp_info_.total_time = end_bp_time - start_bp_time;
-        end_time_in = clock();
+        bp_info_.total_time += end_bp_time - start_bp_time;
+        // end_time_in = clock();
         // std::cout << "Iteration " << num_iterations << " takes: "
         //           << double(end_time_in - start_time_in) / CLOCKS_PER_SEC * 1000
         //           << "(ms).\n";
@@ -260,6 +257,7 @@ PathPair CosePulse::FindPathPair(const Flow &flow) {
         result.bp_path.CompletePath();
     }
     end_time = clock();
+    ap_info_.total_time = end_time - start_time - bp_info_.total_time;
     // std::cout << "Total number of iterations: " << num_iterations << "\n";
     std::cout << "In total, CosePulse takes: "
               << double(end_time - start_time) / CLOCKS_PER_SEC * 1000
