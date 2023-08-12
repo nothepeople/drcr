@@ -1,6 +1,6 @@
 # INTRODUCTION
 
-This is the code for our paper titled "Efficient Routing Algorithm Design for Large DetNet". Our code is highly optimized, and has been adopted by our sponsor company.
+This is the code for our paper titled "Pulse+: DetNet Routing Under Delay-Diff Constraint". Our code is highly optimized, and has been adopted by our sponsor company.
 
 # DRCR
 
@@ -8,7 +8,7 @@ This is the code for our paper titled "Efficient Routing Algorithm Design for La
 
 - All the test cases are in the "/data/DelayRange" directory.
 
-- Result: Pulse > LagrangianKsp > CostKsp/DelayKSP
+- Result: Pulse+ > LagrangianKsp > CostKsp/DelayKSP
 
 - Note: The following paper proposed a heuristic algorithm to solve the DRCR problem, but cannot offer optimality guarantee.
 
