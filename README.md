@@ -10,7 +10,7 @@ This is the code for our paper titled "Efficient Routing Algorithm Design for La
 
 - Result: Pulse > LagrangianKsp > CostKsp/DelayKSP
 
-- Note: The following paper proposed a heuristic algorithm to solve the DRCR problem, but cannot offer optimality guarantee. (For example, this algorithm fails to find a solution to the third test case in data/DelayRange/Zoo/Zoo/VtlWavenet2008/tunnel.csv.) In addition, the scalability of this heuristic algorithm is extremely poor. Many test cases with only 1000 nodes may run forever. Therefore, we do not include the results in the paper.
+- Note: The following paper proposed a heuristic algorithm to solve the DRCR problem, but cannot offer optimality guarantee.
 
 Celso C. Ribeiro and Michel Minoux. "A Heuristic Approach to Hard Constrained Shortest Path Problems." Discrete Applied Mathematics. 1985.
 
